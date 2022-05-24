@@ -8,5 +8,6 @@ RUN make build
 FROM gcr.io/distroless/base-debian11 AS production-stage
 WORKDIR /
 COPY --from=build-stage /go/src/app/bin/demo /
+COPY --from=build-stage /go/src/app/config/config.yml /
 USER nonroot:nonroot
-ENTRYPOINT ["/demo"]
+CMD ["/demo", "--config-file=/config.yml"]
