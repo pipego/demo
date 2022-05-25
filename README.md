@@ -69,5 +69,6 @@ Project License can be found [here](LICENSE).
 
 ## Reference
 
+- [deploy](https://github.com/pipego/deploy)
 - [runner](https://github.com/pipego/runner)
 - [scheduler](https://github.com/pipego/scheduler)
