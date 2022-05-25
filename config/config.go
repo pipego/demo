@@ -12,6 +12,13 @@ type MetaData struct {
 }
 
 type Spec struct {
+	Runner    Server `json:"runner"`
+	Scheduler Server `json:"scheduler"`
+}
+
+type Server struct {
+	Host string
+	Port int64
 }
 
 var (

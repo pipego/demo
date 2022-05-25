@@ -3,3 +3,9 @@ kind: demo
 metadata:
   name: demo
 spec:
+  runner:
+    host: 127.0.0.1
+    port: 29090
+  scheduler:
+    host: 127.0.0.1
+    port: 28082

@@ -1,0 +1,29 @@
+{
+  "apiVersion": "v1",
+  "kind": "runner",
+  "metadata": {
+    "name": "runner"
+  },
+  "spec": {
+    "tasks": [
+      {
+        "name": "name1",
+        "commands": [
+          "cmd1",
+          "argv1"
+        ],
+        "depends": []
+      },
+      {
+        "name": "name2",
+        "commands": [
+          "cmd2",
+          "argv2"
+        ],
+        "depends": [
+          "name1"
+        ]
+      }
+    ]
+  }
+}

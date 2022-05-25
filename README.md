@@ -24,7 +24,7 @@
 
 ```bash
 version=latest make build
-./bin/demo --config-file="$PWD"/config/config.yml
+./bin/demo --config-file="$PWD"/test/config/config.yml --runner-file="$PWD"/test/data/runner.json --scheduler-file="$PWD"/test/data/scheduler.json
 ```
 
 
@@ -33,7 +33,7 @@ version=latest make build
 
 ```bash
 version=latest make docker
-docker run -v "$PWD"/config:/tmp ghcr.io/pipego/demo:latest --config-file=/tmp/config.yml
+docker run -v "$PWD"/test:/tmp ghcr.io/pipego/demo:latest --config-file=/tmp/config/config.yml --runner-file=/tmp/data/runner.json --scheduler-file=/tmp/data/scheduler.json
 ```
 
 
@@ -41,6 +41,18 @@ docker run -v "$PWD"/config:/tmp ghcr.io/pipego/demo:latest --config-file=/tmp/c
 ## Usage
 
 ```
+usage: demo --config-file=CONFIG-FILE --runner-file=RUNNER-FILE --scheduler-file=SCHEDULER-FILE [<flags>]
+
+pipego demo
+
+Flags:
+  --help                     Show context-sensitive help (also try --help-long and --help-man).
+  --version                  Show application version.
+  --config-file=CONFIG-FILE  Config file (.json)
+  --runner-file=RUNNER-FILE  Runner file (.json)
+  --scheduler-file=SCHEDULER-FILE
+                             Scheduler file (.json)
+  --output-file=""           Output file (.json)
 ```
 
 
@@ -57,6 +69,12 @@ kind: demo
 metadata:
   name: demo
 spec:
+  runner:
+    host: 127.0.0.1
+    port: 29090
+  scheduler:
+    host: 127.0.0.1
+    port: 28082
 ```
 
 

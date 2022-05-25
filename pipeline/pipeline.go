@@ -10,7 +10,7 @@ import (
 
 type Pipeline interface {
 	Init(context.Context) error
-	Run(context.Context) error
+	Run(context.Context) (Result, error)
 }
 
 type Config struct {
@@ -38,7 +38,7 @@ func (p *pipeline) Init(ctx context.Context) error {
 	return nil
 }
 
-func (p *pipeline) Run(ctx context.Context) error {
+func (p *pipeline) Run(ctx context.Context) (Result, error) {
 	// TODO: Run
-	return nil
+	return Result{}, nil
 }

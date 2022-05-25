@@ -8,11 +8,12 @@ import (
 
 type Runner interface {
 	Init(context.Context) error
-	Run(context.Context) error
+	Run(context.Context) (Result, error)
 }
 
 type Config struct {
 	Config config.Config
+	Data   Proto
 }
 
 type runner struct {
@@ -34,7 +35,7 @@ func (r *runner) Init(ctx context.Context) error {
 	return nil
 }
 
-func (r *runner) Run(ctx context.Context) error {
+func (r *runner) Run(ctx context.Context) (Result, error) {
 	// TODO: Run
-	return nil
+	return Result{}, nil
 }

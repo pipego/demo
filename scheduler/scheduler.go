@@ -8,11 +8,12 @@ import (
 
 type Scheduler interface {
 	Init(context.Context) error
-	Run(context.Context) error
+	Run(context.Context) (Result, error)
 }
 
 type Config struct {
 	Config config.Config
+	Data   Proto
 }
 
 type scheduler struct {
@@ -34,7 +35,7 @@ func (s *scheduler) Init(ctx context.Context) error {
 	return nil
 }
 
-func (s *scheduler) Run(ctx context.Context) error {
+func (s *scheduler) Run(ctx context.Context) (Result, error) {
 	// TODO: Run
-	return nil
+	return Result{}, nil
 }

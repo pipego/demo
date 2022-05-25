@@ -2,4 +2,10 @@ apiVersion: v1
 kind: demo
 metadata:
   name: demo
-spec
+spec:
+  runner:
+    host: 127.0.0.1
+    port: 29090
+  scheduler:
+    host: 127.0.0.1
+    port
