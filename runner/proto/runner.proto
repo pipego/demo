@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option go_package = "github.com/pipego/demo/runner";
+
+package runner;
+
+// The service definition.
+service ServerProto {
+  rpc SendServer (ServerRequest) returns (ServerReply) {}
+}
+
+// The request message.
+message ServerRequest {
+  string apiVersion = 1;
+  string kind = 2;
+  Metadata metadata = 3;
+  Spec spec = 4;
+}
+
+message Metadata {
+  string name = 1;
+}
+
+message Spec {
+  repeated Task tasks = 1;
+}
+
+message Task {
+  string name = 1;
+  repeated string command = 2;
+  repeated string depend = 3;
+}
+
+// The response message.
+message ServerReply {
+  string message = 1;
+}

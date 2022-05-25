@@ -17,7 +17,8 @@
 #export PATH="$PATH:$(go env GOPATH)/bin"
 
 # Build proto
-protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./server/proto/server.proto
+protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./runner/proto/runner.proto
+protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./scheduler/proto/scheduler.proto
 
 # Build mock
-mockgen github.com/pipego/demo/client/proto ServerProtoClient > client/mock/client_mock.go
+# TODO
