@@ -12,13 +12,14 @@ type MetaData struct {
 }
 
 type Spec struct {
-	Runner    Server `json:"runner"`
-	Scheduler Server `json:"scheduler"`
+	Runner    Server `yaml:"runner"`
+	Scheduler Server `yaml:"scheduler"`
 }
 
 type Server struct {
-	Host string
-	Port int64
+	Host    string `yaml:"host"`
+	Port    int    `yaml:"port"`
+	Timeout int    `yaml:"timeout"`
 }
 
 var (

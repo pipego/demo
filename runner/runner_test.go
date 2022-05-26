@@ -1,12 +1,13 @@
 package runner
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRunner(t *testing.T) {
-	// TODO: Runner
-	assert.Equal(t, nil, nil)
+	r := New(context.Background(), DefaultConfig())
+	assert.NotEqual(t, nil, r)
 }

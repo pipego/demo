@@ -40,5 +40,6 @@ type Resource struct {
 }
 
 type Result struct {
-	// TODO: Result
+	Name  string `json:"name"`
+	Error string `json:"error"`
 }

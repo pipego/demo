@@ -18,7 +18,7 @@ import (
 
 var (
 	app           = kingpin.New("demo", "pipego demo").Version(config.Version + "-build-" + config.Build)
-	configFile    = app.Flag("config-file", "Config file (.json)").Required().String()
+	configFile    = app.Flag("config-file", "Config file (.yml)").Required().String()
 	runnerFile    = app.Flag("runner-file", "Runner file (.json)").Required().String()
 	schedulerFile = app.Flag("scheduler-file", "Scheduler file (.json)").Required().String()
 	outputFile    = app.Flag("output-file", "Output file (.json)").Default("").String()

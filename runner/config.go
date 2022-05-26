@@ -22,5 +22,5 @@ type Task struct {
 }
 
 type Result struct {
-	// TODO: Result
+	Message string `json:"message"`
 }

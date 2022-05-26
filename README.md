@@ -48,7 +48,7 @@ pipego demo
 Flags:
   --help                     Show context-sensitive help (also try --help-long and --help-man).
   --version                  Show application version.
-  --config-file=CONFIG-FILE  Config file (.json)
+  --config-file=CONFIG-FILE  Config file (.yml)
   --runner-file=RUNNER-FILE  Runner file (.json)
   --scheduler-file=SCHEDULER-FILE
                              Scheduler file (.json)
@@ -72,9 +72,11 @@ spec:
   runner:
     host: 127.0.0.1
     port: 29090
+    timeout: 300
   scheduler:
     host: 127.0.0.1
     port: 28082
+    timeout: 300
 ```
 
 
