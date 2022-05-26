@@ -1,12 +1,13 @@
 package pipeline
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPipeline(t *testing.T) {
-	// TODO: Pipeline
-	assert.Equal(t, nil, nil)
+	p := New(context.Background(), DefaultConfig())
+	assert.NotEqual(t, nil, p)
 }

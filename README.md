@@ -52,7 +52,6 @@ Flags:
   --runner-file=RUNNER-FILE  Runner file (.json)
   --scheduler-file=SCHEDULER-FILE
                              Scheduler file (.json)
-  --output-file=""           Output file (.json)
 ```
 
 

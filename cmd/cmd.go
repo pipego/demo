@@ -21,7 +21,6 @@ var (
 	configFile    = app.Flag("config-file", "Config file (.yml)").Required().String()
 	runnerFile    = app.Flag("runner-file", "Runner file (.json)").Required().String()
 	schedulerFile = app.Flag("scheduler-file", "Scheduler file (.json)").Required().String()
-	outputFile    = app.Flag("output-file", "Output file (.json)").Default("").String()
 )
 
 func Run(ctx context.Context) error {
@@ -47,7 +46,7 @@ func Run(ctx context.Context) error {
 		return errors.Wrap(err, "failed to init pipeline")
 	}
 
-	if err := runPipeline(ctx, p, *outputFile); err != nil {
+	if err := runPipeline(ctx, p); err != nil {
 		return errors.Wrap(err, "failed to run pipeline")
 	}
 
@@ -147,35 +146,13 @@ func initPipeline(ctx context.Context, cfg *config.Config, run runner.Runner, sc
 }
 
 // nolint: gosec
-func runPipeline(ctx context.Context, pipe pipeline.Pipeline, name string) error {
-	helper := func(data any, name string) error {
-		buf, err := json.Marshal(data)
-		if err != nil {
-			return err
-		}
-		perm := 0644
-		if err := os.WriteFile(*outputFile, buf, os.FileMode(perm)); err != nil {
-			return err
-		}
-		return nil
-	}
-
+func runPipeline(ctx context.Context, pipe pipeline.Pipeline) error {
 	if err := pipe.Init(ctx); err != nil {
 		return errors.Wrap(err, "failed to init")
 	}
 
-	res, err := pipe.Run(ctx)
-	if err != nil {
+	if err := pipe.Run(ctx); err != nil {
 		return errors.Wrap(err, "failed to run")
-	}
-
-	if *outputFile != "" {
-		if _, err := os.Stat(name); err == nil {
-			return errors.New("file already exists")
-		}
-		if err := helper(res, *outputFile); err != nil {
-			return errors.Wrap(err, "failed to write")
-		}
 	}
 
 	return nil
