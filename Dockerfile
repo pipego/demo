@@ -10,6 +10,9 @@ WORKDIR /
 COPY --from=build-stage /go/src/app/bin/demo /
 COPY --from=build-stage /go/src/app/test/config/config.yml /
 COPY --from=build-stage /go/src/app/test/data/runner.json /
-COPY --from=build-stage /go/src/app/test/data/scheduler.json /
+COPY --from=build-stage /go/src/app/test/data/scheduler1.json /
+COPY --from=build-stage /go/src/app/test/data/scheduler2.json /
+COPY --from=build-stage /go/src/app/test/data/scheduler3.json /
+COPY --from=build-stage /go/src/app/test/data/scheduler4.json /
 USER nonroot:nonroot
-CMD ["/demo", "--config-file=/config.yml", "--runner-file=/runner.json", "--scheduler-file=/scheduler.json"]
+CMD ["/demo", "--config-file=/config.yml", "--runner-file=/runner.json", "--scheduler-file=/scheduler1.json"]
