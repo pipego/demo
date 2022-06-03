@@ -57,6 +57,6 @@ func TestInitScheduler(t *testing.T) {
 	_, err = initScheduler(ctx, c, "invalid.json")
 	assert.NotEqual(t, nil, err)
 
-	_, err = initScheduler(ctx, c, "../test/data/scheduler.json")
+	_, err = initScheduler(ctx, c, "../test/data/scheduler1.json")
 	assert.Equal(t, nil, err)
 }

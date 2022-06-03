@@ -7,16 +7,7 @@
   "spec": {
     "task": {
       "name": "task1",
-      "nodeName": "node1",
-      "nodeSelector": [
-        "ssd"
-      ],
-      "requestedResource": {
-        "milliCPU": 256,
-        "memory": 512,
-        "storage": 1024
-      },
-      "toleratesUnschedulable": true
+      "toleratesUnschedulable": false
     },
     "nodes": [
       {
@@ -34,6 +25,22 @@
           "storage": 2048
         },
         "unschedulable": true
+      },
+      {
+        "name": "node2",
+        "host": "127.0.0.1",
+        "label": "ssd",
+        "allocatableResource": {
+          "milliCPU": 4096,
+          "memory": 8192,
+          "storage": 16384
+        },
+        "requestedResource": {
+          "milliCPU": 512,
+          "memory": 1024,
+          "storage": 2048
+        },
+        "unschedulable": false
       }
     ]
   }

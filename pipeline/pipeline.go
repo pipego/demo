@@ -59,16 +59,17 @@ func (p *pipeline) Run(ctx context.Context) error {
 		return errors.Wrap(err, "failed to run scheduler")
 	}
 
-	fmt.Println("Scheduler:")
-	fmt.Println("Name:", resScheduler.Name)
+	fmt.Println("  Run: scheduler")
+	fmt.Println(" Name:", resScheduler.Name)
 	fmt.Println("Error:", resScheduler.Error)
+	fmt.Println()
 
 	resRunner, err := p.cfg.Runner.Run(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to run runner")
 	}
 
-	fmt.Println("Runner:")
+	fmt.Println("    Run: runner")
 	fmt.Println("Message:", resRunner.Message)
 
 	return nil

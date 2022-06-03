@@ -7,21 +7,29 @@
   "spec": {
     "tasks": [
       {
-        "name": "name1",
+        "name": "task1",
         "commands": [
-          "cmd1",
-          "argv1"
+          "echo",
+          "task1"
         ],
         "depends": []
       },
       {
-        "name": "name2",
+        "name": "task2",
         "commands": [
-          "cmd2",
-          "argv2"
+          "echo",
+          "task2"
+        ],
+        "depends": []
+      },
+      {
+        "name": "task3",
+        "commands": [
+          "echo",
+          "task3"
         ],
         "depends": [
-          "name1"
+          "task2"
         ]
       }
     ]
