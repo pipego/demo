@@ -16,6 +16,7 @@ import (
 
 type Scheduler interface {
 	Init(context.Context) error
+	Deinit(context.Context) error
 	Run(context.Context) (Result, error)
 }
 
@@ -27,6 +28,7 @@ type Config struct {
 type scheduler struct {
 	cfg    *Config
 	client proto.ServerProtoClient
+	conn   *grpc.ClientConn
 }
 
 func New(_ context.Context, cfg *Config) Scheduler {
@@ -40,10 +42,12 @@ func DefaultConfig() *Config {
 }
 
 func (s *scheduler) Init(_ context.Context) error {
+	var err error
+
 	host := s.cfg.Config.Spec.Scheduler.Host
 	port := s.cfg.Config.Spec.Scheduler.Port
 
-	conn, err := grpc.Dial(host+":"+strconv.Itoa(port),
+	s.conn, err = grpc.Dial(host+":"+strconv.Itoa(port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32), grpc.MaxCallSendMsgSize(math.MaxInt32)))
@@ -51,11 +55,13 @@ func (s *scheduler) Init(_ context.Context) error {
 		return errors.Wrap(err, "failed to dial")
 	}
 
-	defer func() { _ = conn.Close() }()
-
-	s.client = proto.NewServerProtoClient(conn)
+	s.client = proto.NewServerProtoClient(s.conn)
 
 	return nil
+}
+
+func (s *scheduler) Deinit(_ context.Context) error {
+	return s.conn.Close()
 }
 
 func (s *scheduler) Run(_ context.Context) (Result, error) {

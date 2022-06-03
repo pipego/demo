@@ -155,5 +155,7 @@ func runPipeline(ctx context.Context, pipe pipeline.Pipeline) error {
 		return errors.Wrap(err, "failed to run")
 	}
 
+	_ = pipe.Deinit(ctx)
+
 	return nil
 }

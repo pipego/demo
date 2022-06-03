@@ -13,6 +13,7 @@ import (
 
 type Pipeline interface {
 	Init(context.Context) error
+	Deinit(context.Context) error
 	Run(context.Context) error
 }
 
@@ -46,6 +47,10 @@ func (p *pipeline) Init(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (p *pipeline) Deinit(ctx context.Context) error {
+	return p.cfg.Scheduler.Deinit(ctx)
 }
 
 func (p *pipeline) Run(ctx context.Context) error {
