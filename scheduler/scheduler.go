@@ -64,7 +64,7 @@ func (s *scheduler) Deinit(_ context.Context) error {
 	return s.conn.Close()
 }
 
-func (s *scheduler) Run(_ context.Context) (Result, error) {
+func (s *scheduler) Run(ctx context.Context) (Result, error) {
 	task := func() *proto.Task {
 		return &proto.Task{
 			Name:         s.cfg.Data.Spec.Task.Name,
@@ -102,10 +102,10 @@ func (s *scheduler) Run(_ context.Context) (Result, error) {
 		return n
 	}()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(s.cfg.Config.Spec.Scheduler.Timeout)*time.Second)
+	c, cancel := context.WithTimeout(ctx, time.Duration(s.cfg.Config.Spec.Scheduler.Timeout)*time.Second)
 	defer cancel()
 
-	reply, err := s.client.SendServer(ctx, &proto.ServerRequest{
+	reply, err := s.client.SendServer(c, &proto.ServerRequest{
 		ApiVersion: s.cfg.Data.ApiVersion,
 		Kind:       s.cfg.Data.Kind,
 		Metadata: &proto.Metadata{
