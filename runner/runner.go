@@ -95,5 +95,5 @@ func (r *runner) Run(ctx context.Context) (Result, error) {
 		return Result{}, errors.Wrap(err, "failed to send")
 	}
 
-	return Result{Message: reply.GetMessage()}, nil
+	return Result{Result: reply.GetResult(), Error: reply.GetError()}, nil
 }

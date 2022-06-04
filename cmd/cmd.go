@@ -159,12 +159,13 @@ func runPipeline(ctx context.Context, pipe pipeline.Pipeline) error {
 
 	_ = pipe.Deinit(ctx)
 
-	fmt.Println("    Run: scheduler")
-	fmt.Println("   Name:", resScheduler.Name)
-	fmt.Println("  Error:", resScheduler.Error)
+	fmt.Println("   Run: scheduler")
+	fmt.Println("  Name:", resScheduler.Name)
+	fmt.Println(" Error:", resScheduler.Error)
 	fmt.Println()
-	fmt.Println("    Run: runner")
-	fmt.Println("Message:", resRunner.Message)
+	fmt.Println("   Run: runner")
+	fmt.Println("Result:", resRunner.Result)
+	fmt.Println(" Error:", resRunner.Error)
 
 	return nil
 }
