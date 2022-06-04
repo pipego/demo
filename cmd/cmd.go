@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 
@@ -151,11 +152,19 @@ func runPipeline(ctx context.Context, pipe pipeline.Pipeline) error {
 		return errors.Wrap(err, "failed to init")
 	}
 
-	if err := pipe.Run(ctx); err != nil {
+	resScheduler, resRunner, err := pipe.Run(ctx)
+	if err != nil {
 		return errors.Wrap(err, "failed to run")
 	}
 
 	_ = pipe.Deinit(ctx)
+
+	fmt.Println("    Run: scheduler")
+	fmt.Println("   Name:", resScheduler.Name)
+	fmt.Println("  Error:", resScheduler.Error)
+	fmt.Println()
+	fmt.Println("    Run: runner")
+	fmt.Println("Message:", resRunner.Message)
 
 	return nil
 }
