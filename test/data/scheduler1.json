@@ -7,16 +7,7 @@
   "spec": {
     "task": {
       "name": "task1",
-      "nodeName": "node1",
-      "nodeSelector": [
-        "ssd"
-      ],
-      "requestedResource": {
-        "milliCPU": 2048,
-        "memory": 4096,
-        "storage": 8192
-      },
-      "toleratesUnschedulable": false
+      "nodeName": "node1"
     },
     "nodes": [
       {
