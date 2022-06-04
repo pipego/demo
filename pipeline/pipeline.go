@@ -48,7 +48,10 @@ func (p *pipeline) Init(ctx context.Context) error {
 }
 
 func (p *pipeline) Deinit(ctx context.Context) error {
-	return p.cfg.Scheduler.Deinit(ctx)
+	_ = p.cfg.Runner.Deinit(ctx)
+	_ = p.cfg.Scheduler.Deinit(ctx)
+
+	return nil
 }
 
 func (p *pipeline) Run(ctx context.Context) (s scheduler.Result, r runner.Result, e error) {
