@@ -22,6 +22,6 @@ type Task struct {
 }
 
 type Result struct {
-	Result string `json:"result"`
+	Output string `json:"output"`
 	Error  string `json:"error"`
 }

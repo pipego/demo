@@ -164,7 +164,7 @@ func runPipeline(ctx context.Context, pipe pipeline.Pipeline) error {
 	fmt.Println(" Error:", resScheduler.Error)
 	fmt.Println()
 	fmt.Println("   Run: runner")
-	fmt.Println("Result:", resRunner.Result)
+	fmt.Println("Output:", resRunner.Output)
 	fmt.Println(" Error:", resRunner.Error)
 
 	return nil
