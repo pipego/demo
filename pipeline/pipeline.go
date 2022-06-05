@@ -13,7 +13,7 @@ import (
 type Pipeline interface {
 	Init(context.Context) error
 	Deinit(context.Context) error
-	Run(context.Context) (scheduler.Result, runner.Result, error)
+	Run(context.Context) (scheduler.Result, []runner.Result, error)
 }
 
 type Config struct {
@@ -55,15 +55,15 @@ func (p *pipeline) Deinit(ctx context.Context) error {
 	return nil
 }
 
-func (p *pipeline) Run(ctx context.Context) (s scheduler.Result, r runner.Result, e error) {
+func (p *pipeline) Run(ctx context.Context) (s scheduler.Result, r []runner.Result, e error) {
 	resScheduler, err := p.cfg.Scheduler.Run(ctx)
 	if err != nil {
-		return scheduler.Result{}, runner.Result{}, errors.Wrap(err, "failed to issuerail scheduler")
+		return scheduler.Result{}, []runner.Result{}, errors.Wrap(err, "failed to issuerail scheduler")
 	}
 
 	resRunner, err := p.cfg.Runner.Run(ctx)
 	if err != nil {
-		return scheduler.Result{}, runner.Result{}, errors.Wrap(err, "failed to run runner")
+		return scheduler.Result{}, []runner.Result{}, errors.Wrap(err, "failed to run runner")
 	}
 
 	return resScheduler, resRunner, nil

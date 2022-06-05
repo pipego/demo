@@ -2,6 +2,7 @@ package runner
 
 import (
 	"context"
+	"io"
 	"math"
 	"strconv"
 	"time"
@@ -17,7 +18,7 @@ import (
 type Runner interface {
 	Init(context.Context) error
 	Deinit(context.Context) error
-	Run(context.Context) (Result, error)
+	Run(context.Context) ([]Result, error)
 }
 
 type Config struct {
@@ -64,7 +65,7 @@ func (r *runner) Deinit(_ context.Context) error {
 	return r.conn.Close()
 }
 
-func (r *runner) Run(ctx context.Context) (Result, error) {
+func (r *runner) Run(ctx context.Context) ([]Result, error) {
 	tasks := func() []*proto.Task {
 		var t []*proto.Task
 		for _, item := range r.cfg.Data.Spec.Tasks {
@@ -76,6 +77,27 @@ func (r *runner) Run(ctx context.Context) (Result, error) {
 		}
 		return t
 	}()
+
+	output := func(s proto.ServerProto_SendServerClient) []Result {
+		var res []Result
+		done := make(chan bool)
+		go func() {
+			for {
+				recv, err := s.Recv()
+				if err == io.EOF {
+					done <- true
+					return
+				}
+				if err != nil {
+					res = append(res, Result{Error: err.Error()})
+					return
+				}
+				res = append(res, Result{Output: recv.GetOutput(), Error: recv.GetError()})
+			}
+		}()
+		<-done
+		return res
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(r.cfg.Config.Spec.Scheduler.Timeout)*time.Second)
 	defer cancel()
@@ -92,13 +114,8 @@ func (r *runner) Run(ctx context.Context) (Result, error) {
 	})
 
 	if err != nil {
-		return Result{}, errors.Wrap(err, "failed to send")
+		return nil, errors.Wrap(err, "failed to send")
 	}
 
-	recv, err := reply.Recv()
-	if err != nil {
-		return Result{}, errors.Wrap(err, "failed to recv")
-	}
-
-	return Result{Output: recv.GetOutput(), Error: recv.GetError()}, nil
+	return output(reply), nil
 }
