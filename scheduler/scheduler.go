@@ -10,8 +10,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/pipego/demo/config"
-	proto "github.com/pipego/demo/scheduler/proto"
+	"github.com/pipego/cli/config"
+	proto "github.com/pipego/cli/scheduler/proto"
 )
 
 type Scheduler interface {

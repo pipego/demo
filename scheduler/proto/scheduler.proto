@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/pipego/demo/scheduler";
+option go_package = "github.com/pipego/cli/scheduler";
 
 package scheduler;
 

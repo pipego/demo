@@ -11,14 +11,14 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/yaml.v3"
 
-	"github.com/pipego/demo/config"
-	"github.com/pipego/demo/pipeline"
-	"github.com/pipego/demo/runner"
-	"github.com/pipego/demo/scheduler"
+	"github.com/pipego/cli/config"
+	"github.com/pipego/cli/pipeline"
+	"github.com/pipego/cli/runner"
+	"github.com/pipego/cli/scheduler"
 )
 
 var (
-	app           = kingpin.New("demo", "pipego demo").Version(config.Version + "-build-" + config.Build)
+	app           = kingpin.New("cli", "pipego cli").Version(config.Version + "-build-" + config.Build)
 	configFile    = app.Flag("config-file", "Config file (.yml)").Required().String()
 	runnerFile    = app.Flag("runner-file", "Runner file (.json)").Required().String()
 	schedulerFile = app.Flag("scheduler-file", "Scheduler file (.json)").Required().String()

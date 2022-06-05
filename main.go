@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pipego/demo/cmd"
+	"github.com/pipego/cli/cmd"
 )
 
 func main() {

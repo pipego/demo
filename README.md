@@ -1,16 +1,16 @@
-# demo
+# cli
 
-[![Build Status](https://github.com/pipego/demo/workflows/ci/badge.svg?branch=main&event=push)](https://github.com/pipego/demo/actions?query=workflow%3Aci)
-[![codecov](https://codecov.io/gh/pipego/demo/branch/main/graph/badge.svg?token=y5anikgcTz)](https://codecov.io/gh/pipego/demo)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pipego/demo)](https://goreportcard.com/report/github.com/pipego/demo)
-[![License](https://img.shields.io/github/license/pipego/demo.svg)](https://github.com/pipego/demo/blob/main/LICENSE)
-[![Tag](https://img.shields.io/github/tag/pipego/demo.svg)](https://github.com/pipego/demo/tags)
+[![Build Status](https://github.com/pipego/cli/workflows/ci/badge.svg?branch=main&event=push)](https://github.com/pipego/cli/actions?query=workflow%3Aci)
+[![codecov](https://codecov.io/gh/pipego/cli/branch/main/graph/badge.svg?token=NODHGUZJ9X)](https://codecov.io/gh/pipego/cli)
+[![Go Report Card](https://goreportcard.com/badge/github.com/pipego/cli)](https://goreportcard.com/report/github.com/pipego/cli)
+[![License](https://img.shields.io/github/license/pipego/cli.svg)](https://github.com/pipego/cli/blob/main/LICENSE)
+[![Tag](https://img.shields.io/github/tag/pipego/cli.svg)](https://github.com/pipego/cli/tags)
 
 
 
 ## Introduction
 
-*demo* is the demo of [pipego](https://github.com/pipego) written in Go.
+*cli* is the CLI of [pipego](https://github.com/pipego) written in Go.
 
 
 
@@ -24,7 +24,7 @@
 
 ```bash
 version=latest make build
-./bin/demo --config-file="$PWD"/test/config/config.yml --runner-file="$PWD"/test/data/runner.json --scheduler-file="$PWD"/test/data/scheduler.json
+./bin/cli --config-file="$PWD"/test/config/config.yml --runner-file="$PWD"/test/data/runner.json --scheduler-file="$PWD"/test/data/scheduler.json
 ```
 
 
@@ -33,7 +33,7 @@ version=latest make build
 
 ```bash
 version=latest make docker
-docker run -v "$PWD"/test:/tmp ghcr.io/pipego/demo:latest --config-file=/tmp/config/config.yml --runner-file=/tmp/data/runner.json --scheduler-file=/tmp/data/scheduler.json
+docker run -v "$PWD"/test:/tmp ghcr.io/pipego/cli:latest --config-file=/tmp/config/config.yml --runner-file=/tmp/data/runner.json --scheduler-file=/tmp/data/scheduler.json
 ```
 
 
@@ -41,9 +41,9 @@ docker run -v "$PWD"/test:/tmp ghcr.io/pipego/demo:latest --config-file=/tmp/con
 ## Usage
 
 ```
-usage: demo --config-file=CONFIG-FILE --runner-file=RUNNER-FILE --scheduler-file=SCHEDULER-FILE [<flags>]
+usage: cli --config-file=CONFIG-FILE --runner-file=RUNNER-FILE --scheduler-file=SCHEDULER-FILE [<flags>]
 
-pipego demo
+pipego cli
 
 Flags:
   --help                     Show context-sensitive help (also try --help-long and --help-man).
@@ -58,15 +58,15 @@ Flags:
 
 ## Settings
 
-*demo* parameters can be set in the directory [config](https://github.com/pipego/demo/blob/main/config).
+*cli* parameters can be set in the directory [config](https://github.com/pipego/cli/blob/main/config).
 
-An example of configuration in [config.yml](https://github.com/pipego/demo/blob/main/config/config.yml):
+An example of configuration in [config.yml](https://github.com/pipego/cli/blob/main/config/config.yml):
 
 ```yaml
 apiVersion: v1
-kind: demo
+kind: cli
 metadata:
-  name: demo
+  name: cli
 spec:
   runner:
     host: 127.0.0.1

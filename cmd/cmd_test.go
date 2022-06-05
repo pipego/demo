@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/pipego/demo/runner"
+	"github.com/pipego/cli/runner"
 )
 
 func TestInitConfig(t *testing.T) {

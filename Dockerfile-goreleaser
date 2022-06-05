@@ -1,5 +1,5 @@
 FROM gcr.io/distroless/base-debian11 AS production-stage
 WORKDIR /
-COPY demo /
+COPY cli /
 USER nonroot:nonroot
-CMD ["/demo"]
+CMD ["/cli"]

@@ -2,4 +2,4 @@
 
 tag="$1"
 
-docker build -f Dockerfile -t ghcr.io/pipego/demo:"$tag" .
+docker build -f Dockerfile -t ghcr.io/pipego/cli:"$tag" .

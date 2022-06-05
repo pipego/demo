@@ -2,11 +2,12 @@ package pipeline
 
 import (
 	"context"
+
 	"github.com/pkg/errors"
 
-	"github.com/pipego/demo/config"
-	"github.com/pipego/demo/runner"
-	"github.com/pipego/demo/scheduler"
+	"github.com/pipego/cli/config"
+	"github.com/pipego/cli/runner"
+	"github.com/pipego/cli/scheduler"
 )
 
 type Pipeline interface {

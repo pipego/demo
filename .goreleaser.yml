@@ -1,6 +1,6 @@
 ---
 builds:
-  - id: demo
+  - id: cli
     env:
       - CGO_ENABLED=0
     goos:
@@ -11,10 +11,10 @@ builds:
       - amd64
     dir: .
     main: main.go
-    binary: demo
+    binary: cli
     flags:
       - -trimpath
-    ldflags: -s -w -X github.com/pipego/demo/config.Build={{.Date}} -X github.com/pipego/demo/config.Version={{.Version}}
+    ldflags: -s -w -X github.com/pipego/cli/config.Build={{.Date}} -X github.com/pipego/cli/config.Version={{.Version}}
 
 dockers:
   - image_templates: ["ghcr.io/pipego/{{ .ProjectName }}:{{ .Tag }}-amd64"]

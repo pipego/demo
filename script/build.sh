@@ -3,8 +3,8 @@
 build=$(date +%FT%T%z)
 version="$1"
 
-ldflags="-s -w -X github.com/pipego/demo/config.Build=$build -X github.com/pipego/demo/config.Version=$version"
-target="demo"
+ldflags="-s -w -X github.com/pipego/cli/config.Build=$build -X github.com/pipego/cli/config.Version=$version"
+target="cli"
 
 go env -w GOPROXY=https://goproxy.cn,direct
 

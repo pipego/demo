@@ -10,8 +10,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/pipego/demo/config"
-	proto "github.com/pipego/demo/runner/proto"
+	"github.com/pipego/cli/config"
+	proto "github.com/pipego/cli/runner/proto"
 )
 
 type Runner interface {

@@ -1,7 +1,7 @@
 apiVersion: v1
-kind: demo
+kind: cli
 metadata:
-  name: demo
+  name: cli
 spec:
   runner:
     host: 127.0.0.1

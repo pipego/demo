@@ -1,11 +1,11 @@
-module github.com/pipego/demo
+module github.com/pipego/cli
 
 go 1.18
 
 require (
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.1
-	google.golang.org/grpc v1.46.2
+	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/yaml.v3 v3.0.0
