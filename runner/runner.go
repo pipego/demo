@@ -92,7 +92,12 @@ func (r *runner) Run(ctx context.Context) ([]Result, error) {
 					res = append(res, Result{Error: err.Error()})
 					return
 				}
-				res = append(res, Result{Output: recv.GetOutput(), Error: recv.GetError()})
+				output := Output{
+					Pos:     recv.GetOutput().GetPos(),
+					Time:    recv.GetOutput().GetTime(),
+					Message: recv.GetOutput().GetMessage(),
+				}
+				res = append(res, Result{Output: output, Error: recv.GetError()})
 			}
 		}()
 		<-done

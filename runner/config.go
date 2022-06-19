@@ -22,6 +22,12 @@ type Task struct {
 }
 
 type Result struct {
-	Output string `json:"output"`
+	Output Output `json:"output"`
 	Error  string `json:"error"`
+}
+
+type Output struct {
+	Pos     int64  `json:"pos"`
+	Time    int64  `json:"time"`
+	Message string `json:"message"`
 }
