@@ -42,7 +42,7 @@ func DefaultConfig() *Config {
 	return &Config{}
 }
 
-func (r *runner) Init(ctx context.Context) error {
+func (r *runner) Init(_ context.Context) error {
 	var err error
 
 	host := r.cfg.Config.Spec.Runner.Host
@@ -66,16 +66,11 @@ func (r *runner) Deinit(_ context.Context) error {
 }
 
 func (r *runner) Run(ctx context.Context) ([]Result, error) {
-	tasks := func() []*proto.Task {
-		var t []*proto.Task
-		for _, item := range r.cfg.Data.Spec.Tasks {
-			t = append(t, &proto.Task{
-				Name:     item.Name,
-				Commands: item.Commands,
-				Depends:  item.Depends,
-			})
+	task := func() *proto.Task {
+		return &proto.Task{
+			Name:     r.cfg.Data.Spec.Task.Name,
+			Commands: r.cfg.Data.Spec.Task.Commands,
 		}
-		return t
 	}()
 
 	output := func(s proto.ServerProto_SendServerClient) []Result {
@@ -114,7 +109,7 @@ func (r *runner) Run(ctx context.Context) ([]Result, error) {
 			Name: r.cfg.Data.Metadata.Name,
 		},
 		Spec: &proto.Spec{
-			Tasks: tasks,
+			Task: task,
 		},
 	})
 

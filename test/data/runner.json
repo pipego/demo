@@ -5,33 +5,12 @@
     "name": "runner"
   },
   "spec": {
-    "tasks": [
-      {
+    "task": {
         "name": "task1",
         "commands": [
           "echo",
           "task1"
-        ],
-        "depends": []
-      },
-      {
-        "name": "task2",
-        "commands": [
-          "echo",
-          "task2"
-        ],
-        "depends": []
-      },
-      {
-        "name": "task3",
-        "commands": [
-          "echo",
-          "task3"
-        ],
-        "depends": [
-          "task2"
         ]
-      }
-    ]
+    }
   }
 }
