@@ -5,24 +5,27 @@ import (
 	"io"
 	"math"
 	"strconv"
-	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/pipego/cli/config"
+	"github.com/pipego/cli/dag"
 	proto "github.com/pipego/cli/runner/proto"
+	livelog "github.com/pipego/dag/runner"
 )
 
 type Runner interface {
 	Init(context.Context) error
 	Deinit(context.Context) error
-	Run(context.Context) ([]Result, error)
+	Run(context.Context) error
+	Tail(ctx context.Context) livelog.Livelog
 }
 
 type Config struct {
 	Config config.Config
+	Dag    dag.DAG
 	Data   Proto
 }
 
@@ -30,6 +33,7 @@ type runner struct {
 	cfg    *Config
 	client proto.ServerProtoClient
 	conn   *grpc.ClientConn
+	log    livelog.Livelog
 }
 
 func New(_ context.Context, cfg *Config) Runner {
@@ -42,7 +46,34 @@ func DefaultConfig() *Config {
 	return &Config{}
 }
 
-func (r *runner) Init(_ context.Context) error {
+func (r *runner) Init(ctx context.Context) error {
+	if err := r.initConn(ctx); err != nil {
+		return errors.Wrap(err, "failed to init conn")
+	}
+
+	if err := r.initDag(ctx); err != nil {
+		return errors.Wrap(err, "failed to init dag")
+	}
+
+	return nil
+}
+
+func (r *runner) Deinit(ctx context.Context) error {
+	_ = r.deinitDag(ctx)
+	_ = r.deinitConn(ctx)
+
+	return nil
+}
+
+func (r *runner) Run(ctx context.Context) error {
+	return r.runDag(ctx)
+}
+
+func (r *runner) Tail(ctx context.Context) livelog.Livelog {
+	return r.log
+}
+
+func (r *runner) initConn(_ context.Context) error {
 	var err error
 
 	host := r.cfg.Config.Spec.Runner.Host
@@ -61,20 +92,46 @@ func (r *runner) Init(_ context.Context) error {
 	return nil
 }
 
-func (r *runner) Deinit(_ context.Context) error {
+func (r *runner) deinitConn(_ context.Context) error {
 	return r.conn.Close()
 }
 
-func (r *runner) Run(ctx context.Context) ([]Result, error) {
+func (r *runner) initDag(ctx context.Context) error {
+	var tasks []dag.Task
+
+	for _, item := range r.cfg.Data.Spec.Tasks {
+		tasks = append(tasks, dag.Task{
+			Name:     item.Name,
+			Commands: item.Commands,
+			Depends:  item.Depends,
+		})
+	}
+
+	r.log = livelog.Livelog{
+		Error: make(chan error),
+		Line:  make(chan *livelog.Line, len(r.cfg.Data.Spec.Tasks)),
+	}
+
+	return r.cfg.Dag.Init(ctx, tasks)
+}
+
+func (r *runner) deinitDag(ctx context.Context) error {
+	return r.cfg.Dag.Deinit(ctx)
+}
+
+func (r *runner) runDag(ctx context.Context) error {
+	return r.cfg.Dag.Run(ctx, r.routine, r.log)
+}
+
+func (r *runner) routine(name string, args []string, log livelog.Livelog) error {
 	task := func() *proto.Task {
 		return &proto.Task{
-			Name:     r.cfg.Data.Spec.Task.Name,
-			Commands: r.cfg.Data.Spec.Task.Commands,
+			Name:     name,
+			Commands: args,
 		}
 	}()
 
-	output := func(s proto.ServerProto_SendServerClient) []Result {
-		var res []Result
+	output := func(s proto.ServerProto_SendServerClient) {
 		done := make(chan bool)
 		go func() {
 			for {
@@ -84,25 +141,20 @@ func (r *runner) Run(ctx context.Context) ([]Result, error) {
 					return
 				}
 				if err != nil {
-					res = append(res, Result{Error: err.Error()})
+					log.Error <- err
 					return
 				}
-				output := Output{
+				log.Line <- &livelog.Line{
 					Pos:     recv.GetOutput().GetPos(),
 					Time:    recv.GetOutput().GetTime(),
 					Message: recv.GetOutput().GetMessage(),
 				}
-				res = append(res, Result{Output: output, Error: recv.GetError()})
 			}
 		}()
 		<-done
-		return res
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(r.cfg.Config.Spec.Scheduler.Timeout)*time.Second)
-	defer cancel()
-
-	reply, err := r.client.SendServer(ctx, &proto.ServerRequest{
+	reply, err := r.client.SendServer(context.Background(), &proto.ServerRequest{
 		ApiVersion: r.cfg.Data.ApiVersion,
 		Kind:       r.cfg.Data.Kind,
 		Metadata: &proto.Metadata{
@@ -114,8 +166,10 @@ func (r *runner) Run(ctx context.Context) ([]Result, error) {
 	})
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to send")
+		return errors.Wrap(err, "failed to send")
 	}
 
-	return output(reply), nil
+	output(reply)
+
+	return nil
 }

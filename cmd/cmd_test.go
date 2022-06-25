@@ -35,16 +35,29 @@ func TestLoadFile(t *testing.T) {
 	assert.Equal(t, nil, err)
 }
 
+func TestInitDag(t *testing.T) {
+	ctx := context.Background()
+
+	c, err := initConfig(ctx, "../test/config/config.yml")
+	assert.Equal(t, nil, err)
+
+	_, err = initDag(ctx, c)
+	assert.Equal(t, nil, err)
+}
+
 func TestInitRunner(t *testing.T) {
 	ctx := context.Background()
 
 	c, err := initConfig(ctx, "../test/config/config.yml")
 	assert.Equal(t, nil, err)
 
-	_, err = initRunner(ctx, c, "invalid.json")
+	d, err := initDag(ctx, c)
+	assert.Equal(t, nil, err)
+
+	_, err = initRunner(ctx, c, "invalid.json", d)
 	assert.NotEqual(t, nil, err)
 
-	_, err = initRunner(ctx, c, "../test/data/runner.json")
+	_, err = initRunner(ctx, c, "../test/data/runner.json", d)
 	assert.Equal(t, nil, err)
 }
 

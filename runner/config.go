@@ -12,12 +12,13 @@ type Metadata struct {
 }
 
 type Spec struct {
-	Task Task `json:"task"`
+	Tasks []Task `json:"tasks"`
 }
 
 type Task struct {
 	Name     string   `json:"name"`
 	Commands []string `json:"commands"`
+	Depends  []string `json:"depends"`
 }
 
 type Result struct {

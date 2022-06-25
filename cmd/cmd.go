@@ -12,6 +12,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/pipego/cli/config"
+	"github.com/pipego/cli/dag"
 	"github.com/pipego/cli/pipeline"
 	"github.com/pipego/cli/runner"
 	"github.com/pipego/cli/scheduler"
@@ -32,7 +33,12 @@ func Run(ctx context.Context) error {
 		return errors.Wrap(err, "failed to init scheduler")
 	}
 
-	r, err := initRunner(ctx, cfg, *runnerFile)
+	d, err := initDag(ctx, cfg)
+	if err != nil {
+		return errors.Wrap(err, "failed to init dag")
+	}
+
+	r, err := initRunner(ctx, cfg, *runnerFile, d)
 	if err != nil {
 		return errors.Wrap(err, "failed to init runner")
 	}
@@ -93,13 +99,25 @@ func loadFile(name string) ([]byte, error) {
 	return buf, nil
 }
 
-func initRunner(ctx context.Context, cfg *config.Config, name string) (runner.Runner, error) {
+func initDag(ctx context.Context, cfg *config.Config) (dag.DAG, error) {
+	c := dag.DefaultConfig()
+	if c == nil {
+		return nil, errors.New("failed to config")
+	}
+
+	c.Config = *cfg
+
+	return dag.New(ctx, c), nil
+}
+
+func initRunner(ctx context.Context, cfg *config.Config, name string, d dag.DAG) (runner.Runner, error) {
 	c := runner.DefaultConfig()
 	if c == nil {
 		return nil, errors.New("failed to config")
 	}
 
 	c.Config = *cfg
+	c.Dag = d
 
 	buf, err := loadFile(name)
 	if err != nil {
@@ -152,22 +170,31 @@ func runPipeline(ctx context.Context, pipe pipeline.Pipeline) error {
 		return errors.Wrap(err, "failed to init")
 	}
 
-	resScheduler, resRunner, err := pipe.Run(ctx)
+	s, l, err := pipe.Run(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to run")
 	}
 
-	_ = pipe.Deinit(ctx)
-
 	fmt.Println("   Run: scheduler")
-	fmt.Println("  Name:", resScheduler.Name)
-	fmt.Println(" Error:", resScheduler.Error)
+	fmt.Println("  Name:", s.Name)
+	fmt.Println(" Error:", s.Error)
+
 	fmt.Println()
 	fmt.Println("   Run: runner")
-	for _, item := range resRunner {
-		fmt.Println("Output:", item.Output)
-		fmt.Println(" Error:", item.Error)
+
+L:
+	for {
+		select {
+		case line := <-l.Line:
+			fmt.Println("    Pos:", line.Pos)
+			fmt.Println("   Time:", line.Time)
+			fmt.Println("Message:", line.Message)
+		case <-ctx.Done():
+			break L
+		}
 	}
+
+	_ = pipe.Deinit(ctx)
 
 	return nil
 }

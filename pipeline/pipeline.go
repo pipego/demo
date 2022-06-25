@@ -8,12 +8,13 @@ import (
 	"github.com/pipego/cli/config"
 	"github.com/pipego/cli/runner"
 	"github.com/pipego/cli/scheduler"
+	livelog "github.com/pipego/dag/runner"
 )
 
 type Pipeline interface {
 	Init(context.Context) error
 	Deinit(context.Context) error
-	Run(context.Context) (scheduler.Result, []runner.Result, error)
+	Run(context.Context) (scheduler.Result, livelog.Livelog, error)
 }
 
 type Config struct {
@@ -55,16 +56,18 @@ func (p *pipeline) Deinit(ctx context.Context) error {
 	return nil
 }
 
-func (p *pipeline) Run(ctx context.Context) (s scheduler.Result, r []runner.Result, e error) {
-	resScheduler, err := p.cfg.Scheduler.Run(ctx)
-	if err != nil {
-		return scheduler.Result{}, []runner.Result{}, errors.Wrap(err, "failed to issuerail scheduler")
+func (p *pipeline) Run(ctx context.Context) (s scheduler.Result, l livelog.Livelog, e error) {
+	var err error
+
+	if s, err = p.cfg.Scheduler.Run(ctx); err != nil {
+		return scheduler.Result{}, livelog.Livelog{}, errors.Wrap(err, "failed to issuerail scheduler")
 	}
 
-	resRunner, err := p.cfg.Runner.Run(ctx)
-	if err != nil {
-		return scheduler.Result{}, []runner.Result{}, errors.Wrap(err, "failed to run runner")
+	if err = p.cfg.Runner.Run(ctx); err != nil {
+		return scheduler.Result{}, livelog.Livelog{}, errors.Wrap(err, "failed to run runner")
 	}
 
-	return resScheduler, resRunner, nil
+	l = p.cfg.Runner.Tail(ctx)
+
+	return s, l, nil
 }
