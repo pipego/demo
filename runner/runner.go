@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	LIVELOG_LEN = 5000
+	LIVELOG = 5000
 )
 
 type Runner interface {
@@ -112,8 +112,8 @@ func (r *runner) initDag(ctx context.Context) error {
 	}
 
 	r.log = livelog.Livelog{
-		Error: make(chan error, LIVELOG_LEN),
-		Line:  make(chan *livelog.Line, LIVELOG_LEN),
+		Error: make(chan error, LIVELOG),
+		Line:  make(chan *livelog.Line, LIVELOG),
 	}
 
 	return r.cfg.Dag.Init(ctx, tasks)
