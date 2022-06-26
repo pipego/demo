@@ -16,6 +16,10 @@ import (
 	livelog "github.com/pipego/dag/runner"
 )
 
+const (
+	LIVELOG_LEN = 5000
+)
+
 type Runner interface {
 	Init(context.Context) error
 	Deinit(context.Context) error
@@ -108,8 +112,8 @@ func (r *runner) initDag(ctx context.Context) error {
 	}
 
 	r.log = livelog.Livelog{
-		Error: make(chan error, len(r.cfg.Data.Spec.Tasks)),
-		Line:  make(chan *livelog.Line, len(r.cfg.Data.Spec.Tasks)),
+		Error: make(chan error, LIVELOG_LEN),
+		Line:  make(chan *livelog.Line, LIVELOG_LEN),
 	}
 
 	return r.cfg.Dag.Init(ctx, tasks)
