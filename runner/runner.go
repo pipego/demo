@@ -108,7 +108,7 @@ func (r *runner) initDag(ctx context.Context) error {
 	}
 
 	r.log = livelog.Livelog{
-		Error: make(chan error),
+		Error: make(chan error, len(r.cfg.Data.Spec.Tasks)),
 		Line:  make(chan *livelog.Line, len(r.cfg.Data.Spec.Tasks)),
 	}
 
