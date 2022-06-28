@@ -67,9 +67,9 @@ func (s *scheduler) Deinit(_ context.Context) error {
 func (s *scheduler) Run(ctx context.Context) (Result, error) {
 	task := func() *proto.Task {
 		return &proto.Task{
-			Name:         s.cfg.Data.Spec.Task.Name,
-			NodeName:     s.cfg.Data.Spec.Task.NodeName,
-			NodeSelector: s.cfg.Data.Spec.Task.NodeSelector,
+			Name:          s.cfg.Data.Spec.Task.Name,
+			NodeName:      s.cfg.Data.Spec.Task.NodeName,
+			NodeSelectors: s.cfg.Data.Spec.Task.NodeSelectors,
 			RequestedResource: &proto.RequestedResource{
 				MilliCPU: s.cfg.Data.Spec.Task.RequestedResource.MilliCPU,
 				Memory:   s.cfg.Data.Spec.Task.RequestedResource.Memory,

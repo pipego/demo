@@ -7,7 +7,7 @@
   "spec": {
     "task": {
       "name": "task1",
-      "nodeSelector": [
+      "nodeSelectors": [
         "ssd"
       ]
     },
