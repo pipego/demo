@@ -16,6 +16,7 @@ import (
 	"github.com/pipego/cli/pipeline"
 	"github.com/pipego/cli/runner"
 	"github.com/pipego/cli/scheduler"
+	livelog "github.com/pipego/dag/runner"
 )
 
 var (
@@ -53,7 +54,7 @@ func Run(ctx context.Context) error {
 		return errors.Wrap(err, "failed to init pipeline")
 	}
 
-	if err := runPipeline(ctx, p); err != nil {
+	if err := runPipeline(ctx, r, p); err != nil {
 		return errors.Wrap(err, "failed to run pipeline")
 	}
 
@@ -165,7 +166,7 @@ func initPipeline(ctx context.Context, cfg *config.Config, run runner.Runner, sc
 }
 
 // nolint: gosec
-func runPipeline(ctx context.Context, pipe pipeline.Pipeline) error {
+func runPipeline(ctx context.Context, run runner.Runner, pipe pipeline.Pipeline) error {
 	if err := pipe.Init(ctx); err != nil {
 		return errors.Wrap(err, "failed to init")
 	}
@@ -182,13 +183,14 @@ func runPipeline(ctx context.Context, pipe pipeline.Pipeline) error {
 	fmt.Println()
 	fmt.Println("   Run: runner")
 
+	done := make(chan bool, 1)
+	go printer(ctx, run, l, done)
+
 L:
 	for {
 		select {
-		case line := <-l.Line:
-			fmt.Println("    Pos:", line.Pos)
-			fmt.Println("   Time:", line.Time)
-			fmt.Println("Message:", line.Message)
+		case <-done:
+			break L
 		case <-ctx.Done():
 			break L
 		}
@@ -197,4 +199,17 @@ L:
 	_ = pipe.Deinit(ctx)
 
 	return nil
+}
+
+func printer(ctx context.Context, run runner.Runner, log livelog.Livelog, done chan<- bool) {
+	tasks := run.Tasks(ctx)
+
+	for i := 0; i < len(tasks); i++ {
+		line := <-log.Line
+		fmt.Println("    Pos:", line.Pos)
+		fmt.Println("   Time:", line.Time)
+		fmt.Println("Message:", line.Message)
+	}
+
+	done <- true
 }

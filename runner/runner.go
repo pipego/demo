@@ -25,6 +25,7 @@ type Runner interface {
 	Deinit(context.Context) error
 	Run(context.Context) error
 	Tail(ctx context.Context) livelog.Livelog
+	Tasks(ctx context.Context) []Task
 }
 
 type Config struct {
@@ -77,6 +78,10 @@ func (r *runner) Tail(ctx context.Context) livelog.Livelog {
 	return r.log
 }
 
+func (r *runner) Tasks(_ context.Context) []Task {
+	return r.cfg.Data.Spec.Tasks
+}
+
 func (r *runner) initConn(_ context.Context) error {
 	var err error
 
@@ -120,7 +125,12 @@ func (r *runner) initDag(ctx context.Context) error {
 }
 
 func (r *runner) deinitDag(ctx context.Context) error {
-	return r.cfg.Dag.Deinit(ctx)
+	_ = r.cfg.Dag.Deinit(ctx)
+
+	close(r.log.Error)
+	close(r.log.Line)
+
+	return nil
 }
 
 func (r *runner) runDag(ctx context.Context) error {
