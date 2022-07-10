@@ -73,3 +73,22 @@ func TestInitScheduler(t *testing.T) {
 	_, err = initScheduler(ctx, c, "../test/data/scheduler1.json")
 	assert.Equal(t, nil, err)
 }
+
+func TestInitPipeline(t *testing.T) {
+	ctx := context.Background()
+
+	c, err := initConfig(ctx, "../test/config/config.yml")
+	assert.Equal(t, nil, err)
+
+	d, err := initDag(ctx, c)
+	assert.Equal(t, nil, err)
+
+	r, err := initRunner(ctx, c, "../test/data/runner.json", d)
+	assert.Equal(t, nil, err)
+
+	s, err := initScheduler(ctx, c, "../test/data/scheduler1.json")
+	assert.Equal(t, nil, err)
+
+	_, err = initPipeline(ctx, c, r, s)
+	assert.Equal(t, nil, err)
+}
