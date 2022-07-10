@@ -156,6 +156,7 @@ func (r *runner) routine(name string, args []string, log livelog.Livelog) error 
 				}
 				if err != nil {
 					log.Error <- err
+					done <- false
 					return
 				}
 				log.Line <- &livelog.Line{
