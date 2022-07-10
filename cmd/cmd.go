@@ -204,7 +204,7 @@ L:
 func printer(ctx context.Context, run runner.Runner, log livelog.Livelog, done chan<- bool) {
 	tasks := run.Tasks(ctx)
 
-	for i := 0; i < len(tasks); i++ {
+	for range tasks {
 		line := <-log.Line
 		fmt.Println("    Pos:", line.Pos)
 		fmt.Println("   Time:", line.Time)
