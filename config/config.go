@@ -17,9 +17,8 @@ type Spec struct {
 }
 
 type Server struct {
-	Host    string `yaml:"host"`
-	Port    int    `yaml:"port"`
-	Timeout int    `yaml:"timeout"`
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
 var (

@@ -71,11 +71,9 @@ spec:
   runner:
     host: 127.0.0.1
     port: 29090
-    timeout: 300
   scheduler:
     host: 127.0.0.1
     port: 28082
-    timeout: 300
 ```
 
 

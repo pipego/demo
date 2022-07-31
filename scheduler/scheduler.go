@@ -4,7 +4,6 @@ import (
 	"context"
 	"math"
 	"strconv"
-	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -102,10 +101,7 @@ func (s *scheduler) Run(ctx context.Context) (Result, error) {
 		return n
 	}()
 
-	c, cancel := context.WithTimeout(ctx, time.Duration(s.cfg.Config.Spec.Scheduler.Timeout)*time.Second)
-	defer cancel()
-
-	reply, err := s.client.SendServer(c, &proto.ServerRequest{
+	reply, err := s.client.SendServer(ctx, &proto.ServerRequest{
 		ApiVersion: s.cfg.Data.ApiVersion,
 		Kind:       s.cfg.Data.Kind,
 		Metadata: &proto.Metadata{
