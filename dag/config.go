@@ -1,9 +1,14 @@
 package dag
 
+import (
+	"github.com/pipego/dag/runner"
+)
+
 type Task struct {
 	Name     string
 	Commands []string
 	Depends  []string
+	Timeout  runner.Timeout
 }
 
 type Dag struct {
@@ -12,8 +17,9 @@ type Dag struct {
 }
 
 type Vertex struct {
-	Name string
-	Run  []string
+	Name     string
+	Commands []string
+	Timeout  runner.Timeout
 }
 
 type Edge struct {

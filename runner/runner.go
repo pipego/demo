@@ -13,7 +13,7 @@ import (
 	"github.com/pipego/cli/config"
 	"github.com/pipego/cli/dag"
 	proto "github.com/pipego/cli/runner/proto"
-	livelog "github.com/pipego/dag/runner"
+	dagRunner "github.com/pipego/dag/runner"
 )
 
 const (
@@ -24,7 +24,7 @@ type Runner interface {
 	Init(context.Context) error
 	Deinit(context.Context) error
 	Run(context.Context) error
-	Tail(ctx context.Context) livelog.Livelog
+	Tail(ctx context.Context) dagRunner.Livelog
 	Tasks(ctx context.Context) []Task
 }
 
@@ -38,7 +38,7 @@ type runner struct {
 	cfg    *Config
 	client proto.ServerProtoClient
 	conn   *grpc.ClientConn
-	log    livelog.Livelog
+	log    dagRunner.Livelog
 }
 
 func New(_ context.Context, cfg *Config) Runner {
@@ -74,7 +74,7 @@ func (r *runner) Run(ctx context.Context) error {
 	return r.runDag(ctx)
 }
 
-func (r *runner) Tail(ctx context.Context) livelog.Livelog {
+func (r *runner) Tail(ctx context.Context) dagRunner.Livelog {
 	return r.log
 }
 
@@ -113,12 +113,13 @@ func (r *runner) initDag(ctx context.Context) error {
 			Name:     item.Name,
 			Commands: item.Commands,
 			Depends:  item.Depends,
+			Timeout:  dagRunner.Timeout(item.Timeout),
 		})
 	}
 
-	r.log = livelog.Livelog{
+	r.log = dagRunner.Livelog{
 		Error: make(chan error, LIVELOG),
-		Line:  make(chan *livelog.Line, LIVELOG),
+		Line:  make(chan *dagRunner.Line, LIVELOG),
 	}
 
 	return r.cfg.Dag.Init(ctx, tasks)
@@ -137,11 +138,15 @@ func (r *runner) runDag(ctx context.Context) error {
 	return r.cfg.Dag.Run(ctx, r.routine, r.log)
 }
 
-func (r *runner) routine(name string, args []string, log livelog.Livelog) error {
+func (r *runner) routine(name string, args []string, timeout dagRunner.Timeout, log dagRunner.Livelog) error {
 	task := func() *proto.Task {
 		return &proto.Task{
 			Name:     name,
 			Commands: args,
+			Timeout: &proto.Timeout{
+				Time: timeout.Time,
+				Unit: timeout.Unit,
+			},
 		}
 	}()
 
@@ -159,7 +164,7 @@ func (r *runner) routine(name string, args []string, log livelog.Livelog) error 
 					done <- false
 					return
 				}
-				log.Line <- &livelog.Line{
+				log.Line <- &dagRunner.Line{
 					Pos:     recv.GetOutput().GetPos(),
 					Time:    recv.GetOutput().GetTime(),
 					Message: recv.GetOutput().GetMessage(),

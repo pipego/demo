@@ -19,6 +19,12 @@ type Task struct {
 	Name     string   `json:"name"`
 	Commands []string `json:"commands"`
 	Depends  []string `json:"depends"`
+	Timeout  Timeout  `json:"timeout"`
+}
+
+type Timeout struct {
+	Time int64  `json:"time"`
+	Unit string `json:"unit"`
 }
 
 type Result struct {

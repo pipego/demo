@@ -12,7 +12,11 @@
           "echo",
           "task1"
         ],
-        "depends": []
+        "depends": [],
+        "timeout": {
+          "time": 10,
+          "unit": "second"
+        }
       },
       {
         "name": "task2",
@@ -20,7 +24,11 @@
           "echo",
           "task2"
         ],
-        "depends": []
+        "depends": [],
+        "timeout": {
+          "time": 10,
+          "unit": "second"
+        }
       },
       {
         "name": "task3",
@@ -31,7 +39,11 @@
         "depends": [
           "task1",
           "task2"
-        ]
+        ],
+        "timeout": {
+          "time": 10,
+          "unit": "second"
+        }
       }
     ]
   }
