@@ -8,6 +8,10 @@
     "tasks": [
       {
         "name": "task1",
+        "file": {
+          "content": "",
+          "gzip": false
+        },
         "commands": [
           "echo",
           "task1"
@@ -20,6 +24,10 @@
       },
       {
         "name": "task2",
+        "file": {
+          "content": "",
+          "gzip": false
+        },
         "commands": [
           "echo",
           "task2"
@@ -32,6 +40,10 @@
       },
       {
         "name": "task3",
+        "file": {
+          "content": "",
+          "gzip": false
+        },
         "commands": [
           "echo",
           "task3"
@@ -39,6 +51,21 @@
         "depends": [
           "task1",
           "task2"
+        ],
+        "timeout": {
+          "time": 10,
+          "unit": "second"
+        }
+      },
+      {
+        "name": "task4",
+        "file": {
+          "content": "#!/usr/bin/env bash\necho \"task4\"",
+          "gzip": true
+        },
+        "commands": [],
+        "depends": [
+          "task3"
         ],
         "timeout": {
           "time": 10,

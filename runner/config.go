@@ -17,9 +17,15 @@ type Spec struct {
 
 type Task struct {
 	Name     string   `json:"name"`
+	File     File     `json:"file"`
 	Commands []string `json:"commands"`
 	Depends  []string `json:"depends"`
 	Timeout  Timeout  `json:"timeout"`
+}
+
+type File struct {
+	Content string `json:"content"`
+	Gzip    bool   `json:"gzip"`
 }
 
 type Timeout struct {

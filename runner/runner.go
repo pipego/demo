@@ -1,6 +1,8 @@
 package runner
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"io"
 	"math"
@@ -111,6 +113,7 @@ func (r *runner) initDag(ctx context.Context) error {
 	for _, item := range r.cfg.Data.Spec.Tasks {
 		tasks = append(tasks, dag.Task{
 			Name:     item.Name,
+			File:     dagRunner.File(item.File),
 			Commands: item.Commands,
 			Depends:  item.Depends,
 			Timeout:  dagRunner.Timeout(item.Timeout),
@@ -138,10 +141,14 @@ func (r *runner) runDag(ctx context.Context) error {
 	return r.cfg.Dag.Run(ctx, r.routine, r.log)
 }
 
-func (r *runner) routine(name string, args []string, timeout dagRunner.Timeout, log dagRunner.Livelog) error {
+func (r *runner) routine(name string, file dagRunner.File, args []string, timeout dagRunner.Timeout, log dagRunner.Livelog) error {
 	task := func() *proto.Task {
 		return &proto.Task{
-			Name:     name,
+			Name: name,
+			File: &proto.File{
+				Content: r.contentHelper([]byte(file.Content), file.Gzip),
+				Gzip:    file.Gzip,
+			},
 			Commands: args,
 			Timeout: &proto.Timeout{
 				Time: timeout.Time,
@@ -192,4 +199,27 @@ func (r *runner) routine(name string, args []string, timeout dagRunner.Timeout, 
 	output(reply)
 
 	return nil
+}
+
+func (r *runner) contentHelper(data []byte, compressed bool) []byte {
+	var b bytes.Buffer
+
+	if !compressed {
+		return data
+	}
+
+	gz := gzip.NewWriter(&b)
+	defer func(gz *gzip.Writer) {
+		_ = gz.Close()
+	}(gz)
+
+	if _, err := gz.Write(data); err != nil {
+		return data
+	}
+
+	if err := gz.Flush(); err != nil {
+		return data
+	}
+
+	return b.Bytes()
 }
