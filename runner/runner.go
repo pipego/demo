@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"strconv"
+	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -20,6 +21,8 @@ import (
 
 const (
 	LIVELOG = 5000
+	TIME    = 12
+	UNIT    = "hour"
 )
 
 type Runner interface {
@@ -42,6 +45,14 @@ type runner struct {
 	conn   *grpc.ClientConn
 	log    dagRunner.Livelog
 }
+
+var (
+	UnitMap = map[string]time.Duration{
+		"second": time.Second,
+		"minute": time.Minute,
+		"hour":   time.Hour,
+	}
+)
 
 func New(_ context.Context, cfg *Config) Runner {
 	return &runner{
@@ -116,7 +127,6 @@ func (r *runner) initDag(ctx context.Context) error {
 			File:     dagRunner.File(item.File),
 			Commands: item.Commands,
 			Depends:  item.Depends,
-			Timeout:  dagRunner.Timeout(item.Timeout),
 		})
 	}
 
@@ -141,7 +151,7 @@ func (r *runner) runDag(ctx context.Context) error {
 	return r.cfg.Dag.Run(ctx, r.routine, r.log)
 }
 
-func (r *runner) routine(name string, file dagRunner.File, args []string, timeout dagRunner.Timeout, log dagRunner.Livelog) error {
+func (r *runner) routine(name string, file dagRunner.File, args []string, log dagRunner.Livelog) error {
 	task := func() *proto.Task {
 		return &proto.Task{
 			Name: name,
@@ -150,10 +160,6 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, timeou
 				Gzip:    file.Gzip,
 			},
 			Commands: args,
-			Timeout: &proto.Timeout{
-				Time: timeout.Time,
-				Unit: timeout.Unit,
-			},
 		}
 	}()
 
@@ -164,11 +170,14 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, timeou
 				recv, err := s.Recv()
 				if err == io.EOF {
 					done <- true
+					_ = s.CloseSend()
 					return
 				}
 				if err != nil {
+					log.Line <- &dagRunner.Line{}
 					log.Error <- err
 					done <- false
+					_ = s.CloseSend()
 					return
 				}
 				log.Line <- &dagRunner.Line{
@@ -181,7 +190,19 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, timeou
 		<-done
 	}
 
-	reply, err := r.client.SendServer(context.Background(), &proto.ServerRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), r.setTimeout(name))
+	defer cancel()
+
+	reply, err := r.client.SendServer(ctx)
+	defer func() {
+		_ = reply.CloseSend()
+	}()
+
+	if err != nil {
+		return errors.Wrap(err, "failed to set")
+	}
+
+	if err := reply.Send(&proto.ServerRequest{
 		ApiVersion: r.cfg.Data.ApiVersion,
 		Kind:       r.cfg.Data.Kind,
 		Metadata: &proto.Metadata{
@@ -190,9 +211,7 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, timeou
 		Spec: &proto.Spec{
 			Task: task,
 		},
-	})
-
-	if err != nil {
+	}); err != nil {
 		return errors.Wrap(err, "failed to send")
 	}
 
@@ -222,4 +241,31 @@ func (r *runner) contentHelper(data []byte, compressed bool) []byte {
 	}
 
 	return b.Bytes()
+}
+
+func (r *runner) setTimeout(name string) time.Duration {
+	helper := func(t Task) time.Duration {
+		tm := int64(TIME)
+		unit := int64(UnitMap[UNIT])
+		if t.Timeout.Time != 0 {
+			tm = t.Timeout.Time
+		}
+		if t.Timeout.Unit != "" {
+			if val, ok := UnitMap[t.Timeout.Unit]; ok {
+				unit = int64(val)
+			}
+		}
+		return time.Duration(tm * unit)
+	}
+
+	var t Task
+
+	for _, item := range r.cfg.Data.Spec.Tasks {
+		if name == item.Name {
+			t = item
+			break
+		}
+	}
+
+	return helper(t)
 }
