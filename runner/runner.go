@@ -126,6 +126,7 @@ func (r *runner) initDag(ctx context.Context) error {
 			Name:     item.Name,
 			File:     dagRunner.File(item.File),
 			Commands: item.Commands,
+			Livelog:  item.Livelog,
 			Depends:  item.Depends,
 		})
 	}
@@ -151,7 +152,7 @@ func (r *runner) runDag(ctx context.Context) error {
 	return r.cfg.Dag.Run(ctx, r.routine, r.log)
 }
 
-func (r *runner) routine(name string, file dagRunner.File, args []string, log dagRunner.Livelog) error {
+func (r *runner) routine(name string, file dagRunner.File, args []string, _len int64, log dagRunner.Livelog) error {
 	task := func() *proto.Task {
 		return &proto.Task{
 			Name: name,
@@ -160,6 +161,7 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, log da
 				Gzip:    file.Gzip,
 			},
 			Commands: args,
+			Livelog:  _len,
 		}
 	}()
 

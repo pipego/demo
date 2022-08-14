@@ -8,6 +8,7 @@ type Task struct {
 	Name     string
 	File     runner.File
 	Commands []string
+	Livelog  int64
 	Depends  []string
 }
 
@@ -20,6 +21,7 @@ type Vertex struct {
 	Name     string
 	File     runner.File
 	Commands []string
+	Livelog  int64
 }
 
 type Edge struct {

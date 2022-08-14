@@ -19,8 +19,9 @@ type Task struct {
 	Name     string   `json:"name"`
 	File     File     `json:"file"`
 	Commands []string `json:"commands"`
-	Depends  []string `json:"depends"`
+	Livelog  int64    `json:"livelog"`
 	Timeout  Timeout  `json:"timeout"`
+	Depends  []string `json:"depends"`
 }
 
 type File struct {

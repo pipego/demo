@@ -10,7 +10,7 @@ import (
 type DAG interface {
 	Init(context.Context, []Task) error
 	Deinit(context.Context) error
-	Run(context.Context, func(string, runner.File, []string, runner.Livelog) error, runner.Livelog) error
+	Run(context.Context, func(string, runner.File, []string, int64, runner.Livelog) error, runner.Livelog) error
 }
 
 type Config struct {
@@ -40,6 +40,7 @@ func (d *dag) Init(_ context.Context, tasks []Task) error {
 			Name:     task.Name,
 			File:     task.File,
 			Commands: task.Commands,
+			Livelog:  task.Livelog,
 		}
 		d.vertex = append(d.vertex, v)
 
@@ -59,10 +60,10 @@ func (d *dag) Deinit(_ context.Context) error {
 	return nil
 }
 
-func (d *dag) Run(_ context.Context, routine func(string, runner.File, []string, runner.Livelog) error,
+func (d *dag) Run(_ context.Context, routine func(string, runner.File, []string, int64, runner.Livelog) error,
 	log runner.Livelog) error {
 	for _, vertex := range d.vertex {
-		d.runner.AddVertex(vertex.Name, routine, vertex.File, vertex.Commands)
+		d.runner.AddVertex(vertex.Name, routine, vertex.File, vertex.Commands, vertex.Livelog)
 	}
 
 	for _, edge := range d.edge {

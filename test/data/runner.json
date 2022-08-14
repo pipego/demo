@@ -16,11 +16,12 @@
           "echo",
           "task1"
         ],
-        "depends": [],
+        "livelog": 5000,
         "timeout": {
           "time": 10,
           "unit": "second"
-        }
+        },
+        "depends": []
       },
       {
         "name": "task2",
@@ -32,11 +33,12 @@
           "echo",
           "task2"
         ],
-        "depends": [],
+        "livelog": 5000,
         "timeout": {
           "time": 10,
           "unit": "second"
-        }
+        },
+        "depends": []
       },
       {
         "name": "task3",
@@ -48,14 +50,15 @@
           "echo",
           "task3"
         ],
-        "depends": [
-          "task1",
-          "task2"
-        ],
+        "livelog": 5000,
         "timeout": {
           "time": 10,
           "unit": "second"
-        }
+        },
+        "depends": [
+          "task1",
+          "task2"
+        ]
       },
       {
         "name": "task4",
@@ -64,13 +67,14 @@
           "gzip": true
         },
         "commands": [],
-        "depends": [
-          "task3"
-        ],
+        "livelog": 5000,
         "timeout": {
           "time": 10,
           "unit": "second"
-        }
+        },
+        "depends": [
+          "task3"
+        ]
       }
     ]
   }
