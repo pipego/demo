@@ -3,7 +3,7 @@ module github.com/pipego/cli
 go 1.18
 
 require (
-	github.com/pipego/dag v1.11.0
+	github.com/pipego/dag v1.12.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.1
 	google.golang.org/grpc v1.47.0
