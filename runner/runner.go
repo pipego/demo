@@ -167,7 +167,7 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, _len i
 
 	output := func(s proto.ServerProto_SendServerClient) {
 		done := make(chan bool)
-		go func() {
+		go func(s proto.ServerProto_SendServerClient, log dagRunner.Livelog, done chan bool) {
 			for {
 				recv, err := s.Recv()
 				if err == io.EOF {
@@ -188,7 +188,7 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, _len i
 					Message: recv.GetOutput().GetMessage(),
 				}
 			}
-		}()
+		}(s, log, done)
 		<-done
 	}
 
