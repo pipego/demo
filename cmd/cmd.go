@@ -31,7 +31,7 @@ func Run(ctx context.Context) error {
 
 	cfg, err := initConfig(ctx, *configFile)
 	if err != nil {
-		return errors.Wrap(err, "failed to init scheduler")
+		return errors.Wrap(err, "failed to init config")
 	}
 
 	d, err := initDag(ctx, cfg)
