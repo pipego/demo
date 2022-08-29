@@ -20,9 +20,9 @@ import (
 )
 
 const (
-	LIVELOG = 5000
-	TIME    = 12
-	UNIT    = "hour"
+	Livelog = 5000
+	Time    = 12
+	Unit    = "hour"
 )
 
 type Runner interface {
@@ -132,8 +132,8 @@ func (r *runner) initDag(ctx context.Context) error {
 	}
 
 	r.log = dagRunner.Livelog{
-		Error: make(chan error, LIVELOG),
-		Line:  make(chan *dagRunner.Line, LIVELOG),
+		Error: make(chan error, Livelog),
+		Line:  make(chan *dagRunner.Line, Livelog),
 	}
 
 	return r.cfg.Dag.Init(ctx, tasks)
@@ -247,8 +247,8 @@ func (r *runner) contentHelper(data []byte, compressed bool) []byte {
 
 func (r *runner) setTimeout(name string) time.Duration {
 	helper := func(t Task) time.Duration {
-		tm := int64(TIME)
-		unit := int64(UnitMap[UNIT])
+		tm := int64(Time)
+		unit := int64(UnitMap[Unit])
 		if t.Timeout.Time != 0 {
 			tm = t.Timeout.Time
 		}
