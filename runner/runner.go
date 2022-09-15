@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
-	"io"
 	"math"
 	"strconv"
 	"time"
@@ -169,21 +168,21 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, _len i
 		done := make(chan bool)
 		go func(s proto.ServerProto_SendServerClient, log dagRunner.Livelog, done chan bool) {
 			for {
-				recv, err := s.Recv()
-				if err == io.EOF {
-					done <- true
+				if recv, err := s.Recv(); err == nil {
+					if recv.GetOutput().GetMessage() == "EOF" {
+						_ = s.CloseSend()
+						done <- true
+						return
+					}
+					log.Line <- &dagRunner.Line{
+						Pos:     recv.GetOutput().GetPos(),
+						Time:    recv.GetOutput().GetTime(),
+						Message: recv.GetOutput().GetMessage(),
+					}
+				} else {
 					_ = s.CloseSend()
-					return
-				}
-				if err != nil {
 					done <- false
-					_ = s.CloseSend()
 					return
-				}
-				log.Line <- &dagRunner.Line{
-					Pos:     recv.GetOutput().GetPos(),
-					Time:    recv.GetOutput().GetTime(),
-					Message: recv.GetOutput().GetMessage(),
 				}
 			}
 		}(s, log, done)
