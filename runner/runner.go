@@ -176,8 +176,6 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, _len i
 					return
 				}
 				if err != nil {
-					log.Line <- &dagRunner.Line{}
-					log.Error <- err
 					done <- false
 					_ = s.CloseSend()
 					return
