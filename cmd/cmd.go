@@ -205,10 +205,15 @@ func printer(ctx context.Context, run runner.Runner, log livelog.Livelog, done c
 	tasks := run.Tasks(ctx)
 
 	for range tasks {
-		line := <-log.Line
-		fmt.Println("    Pos:", line.Pos)
-		fmt.Println("   Time:", line.Time)
-		fmt.Println("Message:", line.Message)
+		for {
+			line := <-log.Line
+			fmt.Println("    Pos:", line.Pos)
+			fmt.Println("   Time:", line.Time)
+			fmt.Println("Message:", line.Message)
+			if line.Message == "EOF" {
+				break
+			}
+		}
 	}
 
 	done <- true

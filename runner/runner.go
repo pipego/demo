@@ -169,15 +169,15 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, _len i
 		go func(s proto.ServerProto_SendServerClient, log dagRunner.Livelog, done chan bool) {
 			for {
 				if recv, err := s.Recv(); err == nil {
-					if recv.GetOutput().GetMessage() == "EOF" {
-						_ = s.CloseSend()
-						done <- true
-						return
-					}
 					log.Line <- &dagRunner.Line{
 						Pos:     recv.GetOutput().GetPos(),
 						Time:    recv.GetOutput().GetTime(),
 						Message: recv.GetOutput().GetMessage(),
+					}
+					if recv.GetOutput().GetMessage() == "EOF" {
+						_ = s.CloseSend()
+						done <- true
+						return
 					}
 				} else {
 					_ = s.CloseSend()
