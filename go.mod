@@ -20,7 +20,7 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
-	golang.org/x/sys v0.0.0-20220128215802-99c3d69c2c27 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.3.4 // indirect
 	google.golang.org/genproto v0.0.0-20210207032614-bba0dbe2a9ea // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
