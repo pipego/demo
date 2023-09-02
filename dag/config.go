@@ -7,6 +7,7 @@ import (
 type Task struct {
 	Name     string
 	File     runner.File
+	Params   []runner.Param
 	Commands []string
 	Livelog  int64
 	Depends  []string
@@ -20,6 +21,7 @@ type Dag struct {
 type Vertex struct {
 	Name     string
 	File     runner.File
+	Params   []runner.Param
 	Commands []string
 	Livelog  int64
 }

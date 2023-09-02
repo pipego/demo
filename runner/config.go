@@ -18,6 +18,7 @@ type Spec struct {
 type Task struct {
 	Name     string   `json:"name"`
 	File     File     `json:"file"`
+	Params   []Param  `json:"params"`
 	Commands []string `json:"commands"`
 	Livelog  int64    `json:"livelog"`
 	Timeout  Timeout  `json:"timeout"`
@@ -27,6 +28,11 @@ type Task struct {
 type File struct {
 	Content string `json:"content"`
 	Gzip    bool   `json:"gzip"`
+}
+
+type Param struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 type Timeout struct {

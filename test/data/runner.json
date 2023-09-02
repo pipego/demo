@@ -12,9 +12,15 @@
           "content": "",
           "gzip": false
         },
+        "params": [
+          {
+            "name": "env1",
+            "value": "val1"
+          }
+        ],
         "commands": [
           "echo",
-          "task1"
+          "$env1"
         ],
         "livelog": 5000,
         "timeout": {
@@ -29,9 +35,15 @@
           "content": "",
           "gzip": false
         },
+        "params": [
+          {
+            "name": "env2",
+            "value": "val2"
+          }
+        ],
         "commands": [
           "echo",
-          "task2"
+          "$env2"
         ],
         "livelog": 5000,
         "timeout": {
@@ -46,9 +58,15 @@
           "content": "",
           "gzip": false
         },
+        "params": [
+          {
+            "name": "env3",
+            "value": "val3"
+          }
+        ],
         "commands": [
           "echo",
-          "task3"
+          "$env3"
         ],
         "livelog": 5000,
         "timeout": {

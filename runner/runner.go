@@ -118,15 +118,27 @@ func (r *runner) deinitConn(_ context.Context) error {
 }
 
 func (r *runner) initDag(ctx context.Context) error {
+	helper := func(p []Param) []dagRunner.Param {
+		var buf []dagRunner.Param
+		for _, item := range p {
+			buf = append(buf, dagRunner.Param{
+				Name:  item.Name,
+				Value: item.Value,
+			})
+		}
+		return buf
+	}
+
 	var tasks []dag.Task
 
-	for _, item := range r.cfg.Data.Spec.Tasks {
+	for i := range r.cfg.Data.Spec.Tasks {
 		tasks = append(tasks, dag.Task{
-			Name:     item.Name,
-			File:     dagRunner.File(item.File),
-			Commands: item.Commands,
-			Livelog:  item.Livelog,
-			Depends:  item.Depends,
+			Name:     r.cfg.Data.Spec.Tasks[i].Name,
+			File:     dagRunner.File(r.cfg.Data.Spec.Tasks[i].File),
+			Params:   helper(r.cfg.Data.Spec.Tasks[i].Params),
+			Commands: r.cfg.Data.Spec.Tasks[i].Commands,
+			Livelog:  r.cfg.Data.Spec.Tasks[i].Livelog,
+			Depends:  r.cfg.Data.Spec.Tasks[i].Depends,
 		})
 	}
 
@@ -151,7 +163,18 @@ func (r *runner) runDag(ctx context.Context) error {
 	return r.cfg.Dag.Run(ctx, r.routine, r.log)
 }
 
-func (r *runner) routine(name string, file dagRunner.File, args []string, _len int64, log dagRunner.Livelog) error {
+func (r *runner) routine(name string, file dagRunner.File, envs []dagRunner.Param, args []string, _len int64, log dagRunner.Livelog) error {
+	params := func(p []dagRunner.Param) []*proto.Param {
+		var buf []*proto.Param
+		for _, item := range p {
+			buf = append(buf, &proto.Param{
+				Name:  item.Name,
+				Value: item.Value,
+			})
+		}
+		return buf
+	}
+
 	task := func() *proto.Task {
 		return &proto.Task{
 			Name: name,
@@ -159,6 +182,7 @@ func (r *runner) routine(name string, file dagRunner.File, args []string, _len i
 				Content: r.contentHelper([]byte(file.Content), file.Gzip),
 				Gzip:    file.Gzip,
 			},
+			Params:   params(envs),
 			Commands: args,
 			Livelog:  _len,
 		}
@@ -259,9 +283,9 @@ func (r *runner) setTimeout(name string) time.Duration {
 
 	var t Task
 
-	for _, item := range r.cfg.Data.Spec.Tasks {
-		if name == item.Name {
-			t = item
+	for i := range r.cfg.Data.Spec.Tasks {
+		if name == r.cfg.Data.Spec.Tasks[i].Name {
+			t = r.cfg.Data.Spec.Tasks[i]
 			break
 		}
 	}
