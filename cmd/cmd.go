@@ -112,7 +112,7 @@ func initDag(ctx context.Context, cfg *config.Config) (dag.DAG, error) {
 }
 
 func initRunner(ctx context.Context, cfg *config.Config, name string, d dag.DAG) (runner.Tasker, error) {
-	c := runner.DefaultConfig()
+	c := runner.TaskerDefaultConfig()
 	if c == nil {
 		return nil, errors.New("failed to config")
 	}
@@ -129,7 +129,7 @@ func initRunner(ctx context.Context, cfg *config.Config, name string, d dag.DAG)
 		return nil, errors.Wrap(err, "failed to unmarshal")
 	}
 
-	return runner.New(ctx, c), nil
+	return runner.TaskerNew(ctx, c), nil
 }
 
 func initScheduler(ctx context.Context, cfg *config.Config, name string) (scheduler.Scheduler, error) {

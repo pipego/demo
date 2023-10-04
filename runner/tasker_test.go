@@ -8,6 +8,6 @@ import (
 )
 
 func TestTasker(t *testing.T) {
-	r := New(context.Background(), DefaultConfig())
-	assert.NotEqual(t, nil, r)
+	_t := TaskerNew(context.Background(), TaskerDefaultConfig())
+	assert.NotEqual(t, nil, _t)
 }

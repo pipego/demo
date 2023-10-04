@@ -32,14 +32,14 @@ type Tasker interface {
 	Tasks(ctx context.Context) []Task
 }
 
-type Config struct {
+type TaskerConfig struct {
 	Config config.Config
 	Dag    dag.DAG
 	Data   Proto
 }
 
 type tasker struct {
-	cfg    *Config
+	cfg    *TaskerConfig
 	client proto.ServerProtoClient
 	conn   *grpc.ClientConn
 	log    dagRunner.Livelog
@@ -53,14 +53,14 @@ var (
 	}
 )
 
-func New(_ context.Context, cfg *Config) Tasker {
+func TaskerNew(_ context.Context, cfg *TaskerConfig) Tasker {
 	return &tasker{
 		cfg: cfg,
 	}
 }
 
-func DefaultConfig() *Config {
-	return &Config{}
+func TaskerDefaultConfig() *TaskerConfig {
+	return &TaskerConfig{}
 }
 
 func (t *tasker) Init(ctx context.Context) error {
