@@ -111,7 +111,7 @@ func initDag(ctx context.Context, cfg *config.Config) (dag.DAG, error) {
 	return dag.New(ctx, c), nil
 }
 
-func initRunner(ctx context.Context, cfg *config.Config, name string, d dag.DAG) (runner.Runner, error) {
+func initRunner(ctx context.Context, cfg *config.Config, name string, d dag.DAG) (runner.Tasker, error) {
 	c := runner.DefaultConfig()
 	if c == nil {
 		return nil, errors.New("failed to config")
@@ -152,21 +152,21 @@ func initScheduler(ctx context.Context, cfg *config.Config, name string) (schedu
 	return scheduler.New(ctx, c), nil
 }
 
-func initPipeline(ctx context.Context, cfg *config.Config, run runner.Runner, sched scheduler.Scheduler) (pipeline.Pipeline, error) {
+func initPipeline(ctx context.Context, cfg *config.Config, tasker runner.Tasker, sched scheduler.Scheduler) (pipeline.Pipeline, error) {
 	c := pipeline.DefaultConfig()
 	if c == nil {
 		return nil, errors.New("failed to config")
 	}
 
 	c.Config = *cfg
-	c.Runner = run
+	c.Tasker = tasker
 	c.Scheduler = sched
 
 	return pipeline.New(ctx, c), nil
 }
 
 // nolint: gosec
-func runPipeline(ctx context.Context, run runner.Runner, pipe pipeline.Pipeline) error {
+func runPipeline(ctx context.Context, tasker runner.Tasker, pipe pipeline.Pipeline) error {
 	if err := pipe.Init(ctx); err != nil {
 		return errors.Wrap(err, "failed to init")
 	}
@@ -184,7 +184,7 @@ func runPipeline(ctx context.Context, run runner.Runner, pipe pipeline.Pipeline)
 	fmt.Println("   Run: runner")
 
 	done := make(chan bool, 1)
-	go printer(ctx, run, l, done)
+	go printer(ctx, tasker, l, done)
 
 L:
 	for {
@@ -201,8 +201,8 @@ L:
 	return nil
 }
 
-func printer(ctx context.Context, run runner.Runner, log livelog.Livelog, done chan<- bool) {
-	tasks := run.Tasks(ctx)
+func printer(ctx context.Context, tasker runner.Tasker, log livelog.Livelog, done chan<- bool) {
+	tasks := tasker.Tasks(ctx)
 
 	for range tasks {
 		for {

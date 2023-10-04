@@ -19,7 +19,7 @@ type Pipeline interface {
 
 type Config struct {
 	Config    config.Config
-	Runner    runner.Runner
+	Tasker    runner.Tasker
 	Scheduler scheduler.Scheduler
 }
 
@@ -42,7 +42,7 @@ func (p *pipeline) Init(ctx context.Context) error {
 		return errors.Wrap(err, "failed to init scheduler")
 	}
 
-	if err := p.cfg.Runner.Init(ctx); err != nil {
+	if err := p.cfg.Tasker.Init(ctx); err != nil {
 		return errors.Wrap(err, "failed to init runner")
 	}
 
@@ -50,7 +50,7 @@ func (p *pipeline) Init(ctx context.Context) error {
 }
 
 func (p *pipeline) Deinit(ctx context.Context) error {
-	_ = p.cfg.Runner.Deinit(ctx)
+	_ = p.cfg.Tasker.Deinit(ctx)
 	_ = p.cfg.Scheduler.Deinit(ctx)
 
 	return nil
@@ -63,11 +63,11 @@ func (p *pipeline) Run(ctx context.Context) (s scheduler.Result, l livelog.Livel
 		return scheduler.Result{}, livelog.Livelog{}, errors.Wrap(err, "failed to issuerail scheduler")
 	}
 
-	if err = p.cfg.Runner.Run(ctx); err != nil {
+	if err = p.cfg.Tasker.Run(ctx); err != nil {
 		return scheduler.Result{}, livelog.Livelog{}, errors.Wrap(err, "failed to run runner")
 	}
 
-	l = p.cfg.Runner.Tail(ctx)
+	l = p.cfg.Tasker.Tail(ctx)
 
 	return s, l, nil
 }

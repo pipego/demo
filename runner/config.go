@@ -13,7 +13,7 @@ type Metadata struct {
 
 type Spec struct {
 	Tasks   []Task   `json:"tasks"`
-	Glances []Glance `json:"glances`
+	Glances []Glance `json:"glances"`
 }
 
 type Task struct {

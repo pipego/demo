@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRunner(t *testing.T) {
+func TestTasker(t *testing.T) {
 	r := New(context.Background(), DefaultConfig())
 	assert.NotEqual(t, nil, r)
 }

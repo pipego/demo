@@ -24,7 +24,7 @@ const (
 	Unit    = "hour"
 )
 
-type Runner interface {
+type Tasker interface {
 	Init(context.Context) error
 	Deinit(context.Context) error
 	Run(context.Context) error
@@ -38,7 +38,7 @@ type Config struct {
 	Data   Proto
 }
 
-type runner struct {
+type tasker struct {
 	cfg    *Config
 	client proto.ServerProtoClient
 	conn   *grpc.ClientConn
@@ -53,8 +53,8 @@ var (
 	}
 )
 
-func New(_ context.Context, cfg *Config) Runner {
-	return &runner{
+func New(_ context.Context, cfg *Config) Tasker {
+	return &tasker{
 		cfg: cfg,
 	}
 }
@@ -63,44 +63,44 @@ func DefaultConfig() *Config {
 	return &Config{}
 }
 
-func (r *runner) Init(ctx context.Context) error {
-	if err := r.initConn(ctx); err != nil {
+func (t *tasker) Init(ctx context.Context) error {
+	if err := t.initConn(ctx); err != nil {
 		return errors.Wrap(err, "failed to init conn")
 	}
 
-	if err := r.initDag(ctx); err != nil {
+	if err := t.initDag(ctx); err != nil {
 		return errors.Wrap(err, "failed to init dag")
 	}
 
 	return nil
 }
 
-func (r *runner) Deinit(ctx context.Context) error {
-	_ = r.deinitDag(ctx)
-	_ = r.deinitConn(ctx)
+func (t *tasker) Deinit(ctx context.Context) error {
+	_ = t.deinitDag(ctx)
+	_ = t.deinitConn(ctx)
 
 	return nil
 }
 
-func (r *runner) Run(ctx context.Context) error {
-	return r.runDag(ctx)
+func (t *tasker) Run(ctx context.Context) error {
+	return t.runDag(ctx)
 }
 
-func (r *runner) Tail(ctx context.Context) dagRunner.Livelog {
-	return r.log
+func (t *tasker) Tail(ctx context.Context) dagRunner.Livelog {
+	return t.log
 }
 
-func (r *runner) Tasks(_ context.Context) []Task {
-	return r.cfg.Data.Spec.Tasks
+func (t *tasker) Tasks(_ context.Context) []Task {
+	return t.cfg.Data.Spec.Tasks
 }
 
-func (r *runner) initConn(_ context.Context) error {
+func (t *tasker) initConn(_ context.Context) error {
 	var err error
 
-	host := r.cfg.Config.Spec.Runner.Host
-	port := r.cfg.Config.Spec.Runner.Port
+	host := t.cfg.Config.Spec.Runner.Host
+	port := t.cfg.Config.Spec.Runner.Port
 
-	r.conn, err = grpc.Dial(host+":"+strconv.Itoa(port),
+	t.conn, err = grpc.Dial(host+":"+strconv.Itoa(port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32), grpc.MaxCallSendMsgSize(math.MaxInt32)))
@@ -108,17 +108,17 @@ func (r *runner) initConn(_ context.Context) error {
 		return errors.Wrap(err, "failed to dial")
 	}
 
-	r.client = proto.NewServerProtoClient(r.conn)
+	t.client = proto.NewServerProtoClient(t.conn)
 
 	return nil
 }
 
-func (r *runner) deinitConn(_ context.Context) error {
-	return r.conn.Close()
+func (t *tasker) deinitConn(_ context.Context) error {
+	return t.conn.Close()
 }
 
-func (r *runner) initDag(ctx context.Context) error {
-	helper := func(p []Param) []dagRunner.Param {
+func (t *tasker) initDag(ctx context.Context) error {
+	helper := func(p []TaskParam) []dagRunner.Param {
 		var buf []dagRunner.Param
 		for _, item := range p {
 			buf = append(buf, dagRunner.Param{
@@ -131,43 +131,43 @@ func (r *runner) initDag(ctx context.Context) error {
 
 	var tasks []dag.Task
 
-	for i := range r.cfg.Data.Spec.Tasks {
+	for i := range t.cfg.Data.Spec.Tasks {
 		tasks = append(tasks, dag.Task{
-			Name:     r.cfg.Data.Spec.Tasks[i].Name,
-			File:     dagRunner.File(r.cfg.Data.Spec.Tasks[i].File),
-			Params:   helper(r.cfg.Data.Spec.Tasks[i].Params),
-			Commands: r.cfg.Data.Spec.Tasks[i].Commands,
-			Livelog:  r.cfg.Data.Spec.Tasks[i].Livelog,
-			Depends:  r.cfg.Data.Spec.Tasks[i].Depends,
+			Name:     t.cfg.Data.Spec.Tasks[i].Name,
+			File:     dagRunner.File(t.cfg.Data.Spec.Tasks[i].File),
+			Params:   helper(t.cfg.Data.Spec.Tasks[i].Params),
+			Commands: t.cfg.Data.Spec.Tasks[i].Commands,
+			Livelog:  t.cfg.Data.Spec.Tasks[i].Livelog,
+			Depends:  t.cfg.Data.Spec.Tasks[i].Depends,
 		})
 	}
 
-	r.log = dagRunner.Livelog{
+	t.log = dagRunner.Livelog{
 		Error: make(chan error, Livelog),
 		Line:  make(chan *dagRunner.Line, Livelog),
 	}
 
-	return r.cfg.Dag.Init(ctx, tasks)
+	return t.cfg.Dag.Init(ctx, tasks)
 }
 
-func (r *runner) deinitDag(ctx context.Context) error {
-	_ = r.cfg.Dag.Deinit(ctx)
+func (t *tasker) deinitDag(ctx context.Context) error {
+	_ = t.cfg.Dag.Deinit(ctx)
 
-	close(r.log.Error)
-	close(r.log.Line)
+	close(t.log.Error)
+	close(t.log.Line)
 
 	return nil
 }
 
-func (r *runner) runDag(ctx context.Context) error {
-	return r.cfg.Dag.Run(ctx, r.routine, r.log)
+func (t *tasker) runDag(ctx context.Context) error {
+	return t.cfg.Dag.Run(ctx, t.routine, t.log)
 }
 
-func (r *runner) routine(name string, file dagRunner.File, envs []dagRunner.Param, args []string, _len int64, log dagRunner.Livelog) error {
-	params := func(p []dagRunner.Param) []*proto.Param {
-		var buf []*proto.Param
+func (t *tasker) routine(name string, file dagRunner.File, envs []dagRunner.Param, args []string, _len int64, log dagRunner.Livelog) error {
+	params := func(p []dagRunner.Param) []*proto.TaskParam {
+		var buf []*proto.TaskParam
 		for _, item := range p {
-			buf = append(buf, &proto.Param{
+			buf = append(buf, &proto.TaskParam{
 				Name:  item.Name,
 				Value: item.Value,
 			})
@@ -178,8 +178,8 @@ func (r *runner) routine(name string, file dagRunner.File, envs []dagRunner.Para
 	task := func() *proto.Task {
 		return &proto.Task{
 			Name: name,
-			File: &proto.File{
-				Content: r.contentHelper([]byte(file.Content), file.Gzip),
+			File: &proto.TaskFile{
+				Content: t.contentHelper([]byte(file.Content), file.Gzip),
 				Gzip:    file.Gzip,
 			},
 			Params:   params(envs),
@@ -188,9 +188,9 @@ func (r *runner) routine(name string, file dagRunner.File, envs []dagRunner.Para
 		}
 	}()
 
-	output := func(s proto.ServerProto_SendServerClient) {
+	output := func(s proto.ServerProto_SendTaskClient) {
 		done := make(chan bool)
-		go func(s proto.ServerProto_SendServerClient, log dagRunner.Livelog, done chan bool) {
+		go func(s proto.ServerProto_SendTaskClient, log dagRunner.Livelog, done chan bool) {
 			for {
 				if recv, err := s.Recv(); err == nil {
 					log.Line <- &dagRunner.Line{
@@ -213,10 +213,10 @@ func (r *runner) routine(name string, file dagRunner.File, envs []dagRunner.Para
 		<-done
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), r.setTimeout(name))
+	ctx, cancel := context.WithTimeout(context.Background(), t.setTimeout(name))
 	defer cancel()
 
-	reply, err := r.client.SendServer(ctx)
+	reply, err := t.client.SendTask(ctx)
 	defer func() {
 		_ = reply.CloseSend()
 	}()
@@ -225,13 +225,13 @@ func (r *runner) routine(name string, file dagRunner.File, envs []dagRunner.Para
 		return errors.Wrap(err, "failed to set")
 	}
 
-	if err := reply.Send(&proto.ServerRequest{
-		ApiVersion: r.cfg.Data.ApiVersion,
-		Kind:       r.cfg.Data.Kind,
-		Metadata: &proto.Metadata{
-			Name: r.cfg.Data.Metadata.Name,
+	if err := reply.Send(&proto.TaskRequest{
+		ApiVersion: t.cfg.Data.ApiVersion,
+		Kind:       t.cfg.Data.Kind,
+		Metadata: &proto.TaskMetadata{
+			Name: t.cfg.Data.Metadata.Name,
 		},
-		Spec: &proto.Spec{
+		Spec: &proto.TaskSpec{
 			Task: task,
 		},
 	}); err != nil {
@@ -243,7 +243,7 @@ func (r *runner) routine(name string, file dagRunner.File, envs []dagRunner.Para
 	return nil
 }
 
-func (r *runner) contentHelper(data []byte, compressed bool) []byte {
+func (t *tasker) contentHelper(data []byte, compressed bool) []byte {
 	var b bytes.Buffer
 
 	if !compressed {
@@ -266,29 +266,29 @@ func (r *runner) contentHelper(data []byte, compressed bool) []byte {
 	return b.Bytes()
 }
 
-func (r *runner) setTimeout(name string) time.Duration {
-	helper := func(t Task) time.Duration {
+func (t *tasker) setTimeout(name string) time.Duration {
+	helper := func(_t Task) time.Duration {
 		tm := int64(Time)
 		unit := int64(UnitMap[Unit])
-		if t.Timeout.Time != 0 {
-			tm = t.Timeout.Time
+		if _t.Timeout.Time != 0 {
+			tm = _t.Timeout.Time
 		}
-		if t.Timeout.Unit != "" {
-			if val, ok := UnitMap[t.Timeout.Unit]; ok {
+		if _t.Timeout.Unit != "" {
+			if val, ok := UnitMap[_t.Timeout.Unit]; ok {
 				unit = int64(val)
 			}
 		}
 		return time.Duration(tm * unit)
 	}
 
-	var t Task
+	var _t Task
 
-	for i := range r.cfg.Data.Spec.Tasks {
-		if name == r.cfg.Data.Spec.Tasks[i].Name {
-			t = r.cfg.Data.Spec.Tasks[i]
+	for i := range t.cfg.Data.Spec.Tasks {
+		if name == t.cfg.Data.Spec.Tasks[i].Name {
+			_t = t.cfg.Data.Spec.Tasks[i]
 			break
 		}
 	}
 
-	return helper(t)
+	return helper(_t)
 }
