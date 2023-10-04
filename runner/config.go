@@ -12,41 +12,132 @@ type Metadata struct {
 }
 
 type Spec struct {
-	Tasks []Task `json:"tasks"`
+	Tasks   []Task   `json:"tasks"`
+	Glances []Glance `json:"glances`
 }
 
 type Task struct {
-	Name     string   `json:"name"`
-	File     File     `json:"file"`
-	Params   []Param  `json:"params"`
-	Commands []string `json:"commands"`
-	Livelog  int64    `json:"livelog"`
-	Timeout  Timeout  `json:"timeout"`
-	Depends  []string `json:"depends"`
+	Name     string      `json:"name"`
+	File     TaskFile    `json:"file"`
+	Params   []TaskParam `json:"params"`
+	Commands []string    `json:"commands"`
+	Livelog  int64       `json:"livelog"`
+	Timeout  TaskTimeout `json:"timeout"`
+	Depends  []string    `json:"depends"`
 }
 
-type File struct {
+type TaskFile struct {
 	Content string `json:"content"`
 	Gzip    bool   `json:"gzip"`
 }
 
-type Param struct {
+type TaskParam struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
-type Timeout struct {
+type TaskTimeout struct {
 	Time int64  `json:"time"`
 	Unit string `json:"unit"`
 }
 
-type Result struct {
-	Output Output `json:"output"`
-	Error  string `json:"error"`
+type TaskResult struct {
+	Output TaskOutput `json:"output"`
+	Error  string     `json:"error"`
 }
 
-type Output struct {
+type TaskOutput struct {
 	Pos     int64  `json:"pos"`
 	Time    int64  `json:"time"`
 	Message string `json:"message"`
+}
+
+type Glance struct {
+	Dir  GlanceDirReq  `json:"dir"`
+	File GlanceFileReq `json:"file"`
+	Sys  GlanceSysReq  `json:"sys"`
+}
+
+type GlanceDirReq struct {
+	Path string `json:"path"`
+}
+
+type GlanceFileReq struct {
+	Path    string `json:"path"`
+	MaxSize int64  `json:"maxSize"`
+}
+
+type GlanceSysReq struct {
+	Enable bool `json:"enable"`
+}
+
+type GlanceReply struct {
+	Dir   GlanceDirRep  `json:"dir"`
+	File  GlanceFileRep `json:"file"`
+	Sys   GlanceSysRep  `json:"sys"`
+	Error string        `json:"error"`
+}
+
+type GlanceDirRep struct {
+	Entries []GlanceEntry `json:"entries"`
+}
+
+type GlanceEntry struct {
+	Name  string `json:"name"`
+	IsDir bool   `json:"isDir"`
+	Size  int64  `json:"size"`
+	Time  string `json:"time"`
+	User  string `json:"user"`
+	Group string `json:"group"`
+	Mode  string `json:"mode"`
+}
+
+type GlanceFileRep struct {
+	Content  string `json:"content"`
+	Readable bool   `json:"readable"`
+}
+
+type GlanceSysRep struct {
+	Resource GlanceResource `json:"resource"`
+	Stats    GlanceStats    `json:"stats"`
+}
+
+type GlanceResource struct {
+	Allocatable GlanceAllocatable `json:"allocatable"`
+	Requested   GlanceRequested   `json:"requested"`
+}
+
+type GlanceAllocatable struct {
+	MilliCPU int64 `json:"milliCPU"`
+	Memory   int64 `json:"memory"`
+	Storage  int64 `json:"storage"`
+}
+
+type GlanceRequested struct {
+	MilliCPU int64 `json:"milliCPU"`
+	Memory   int64 `json:"memory"`
+	Storage  int64 `json:"storage"`
+}
+
+type GlanceStats struct {
+	CPU     GlanceCPU     `json:"cpu"`
+	Host    string        `json:"host"`
+	Memory  GlanceMemory  `json:"memory"`
+	OS      string        `json:"os"`
+	Storage GlanceStorage `json:"storage"`
+}
+
+type GlanceCPU struct {
+	Total string `json:"total"`
+	Used  string `json:"used"`
+}
+
+type GlanceMemory struct {
+	Total string `json:"total"`
+	Used  string `json:"used"`
+}
+
+type GlanceStorage struct {
+	Total string `json:"total"`
+	Used  string `json:"used"`
 }

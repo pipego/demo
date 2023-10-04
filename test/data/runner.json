@@ -94,6 +94,44 @@
           "task3"
         ]
       }
+    ],
+    "glances": [
+      {
+        "dir": {
+          "path": "/"
+        },
+        "file": {
+          "path": "",
+          "maxSize": 1000
+        },
+        "sys": {
+          "enable": false
+        }
+      },
+      {
+        "dir": {
+          "path": ""
+        },
+        "file": {
+          "path": "/etc/hostname",
+          "maxSize": 1000
+        },
+        "sys": {
+          "enable": false
+        }
+      },
+      {
+        "dir": {
+          "path": ""
+        },
+        "file": {
+          "path": "",
+          "maxSize": 1000
+        },
+        "sys": {
+          "enable": true
+        }
+      }
     ]
   }
 }
