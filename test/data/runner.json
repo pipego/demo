@@ -95,43 +95,21 @@
         ]
       }
     ],
-    "glances": [
-      {
-        "dir": {
-          "path": "/"
-        },
-        "file": {
-          "path": "",
-          "maxSize": 1000
-        },
-        "sys": {
-          "enable": false
-        }
+    "glance": {
+      "dir": {
+        "path": "/"
       },
-      {
-        "dir": {
-          "path": ""
-        },
-        "file": {
-          "path": "/etc/hostname",
-          "maxSize": 1000
-        },
-        "sys": {
-          "enable": false
-        }
+      "file": {
+        "path": "/etc/hostname",
+        "maxSize": 1000
       },
-      {
-        "dir": {
-          "path": ""
-        },
-        "file": {
-          "path": "",
-          "maxSize": 1000
-        },
-        "sys": {
-          "enable": true
-        }
+      "sys": {
+        "enable": true
+      },
+      "timeout": {
+        "time": 10,
+        "unit": "second"
       }
-    ]
+    }
   }
 }

@@ -12,8 +12,8 @@ type Metadata struct {
 }
 
 type Spec struct {
-	Tasks   []Task   `json:"tasks"`
-	Glances []Glance `json:"glances"`
+	Tasks  []Task `json:"tasks"`
+	Glance Glance `json:"glance"`
 }
 
 type Task struct {
@@ -53,9 +53,10 @@ type TaskOutput struct {
 }
 
 type Glance struct {
-	Dir  GlanceDirReq  `json:"dir"`
-	File GlanceFileReq `json:"file"`
-	Sys  GlanceSysReq  `json:"sys"`
+	Dir     GlanceDirReq  `json:"dir"`
+	File    GlanceFileReq `json:"file"`
+	Sys     GlanceSysReq  `json:"sys"`
+	Timeout GlanceTimeout `json:"timeout"`
 }
 
 type GlanceDirReq struct {
@@ -69,6 +70,11 @@ type GlanceFileReq struct {
 
 type GlanceSysReq struct {
 	Enable bool `json:"enable"`
+}
+
+type GlanceTimeout struct {
+	Time int64  `json:"time"`
+	Unit string `json:"unit"`
 }
 
 type GlanceReply struct {

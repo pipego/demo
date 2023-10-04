@@ -46,7 +46,7 @@ type tasker struct {
 }
 
 var (
-	UnitMap = map[string]time.Duration{
+	TaskerUnitMap = map[string]time.Duration{
 		"second": time.Second,
 		"minute": time.Minute,
 		"hour":   time.Hour,
@@ -269,12 +269,12 @@ func (t *tasker) contentHelper(data []byte, compressed bool) []byte {
 func (t *tasker) setTimeout(name string) time.Duration {
 	helper := func(_t Task) time.Duration {
 		tm := int64(Time)
-		unit := int64(UnitMap[Unit])
+		unit := int64(TaskerUnitMap[Unit])
 		if _t.Timeout.Time != 0 {
 			tm = _t.Timeout.Time
 		}
 		if _t.Timeout.Unit != "" {
-			if val, ok := UnitMap[_t.Timeout.Unit]; ok {
+			if val, ok := TaskerUnitMap[_t.Timeout.Unit]; ok {
 				unit = int64(val)
 			}
 		}
