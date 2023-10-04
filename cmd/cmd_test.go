@@ -54,10 +54,10 @@ func TestInitRunner(t *testing.T) {
 	d, err := initDag(ctx, c)
 	assert.Equal(t, nil, err)
 
-	_, err = initRunner(ctx, c, "invalid.json", d)
+	_, _, err = initRunner(ctx, c, "invalid.json", d)
 	assert.NotEqual(t, nil, err)
 
-	_, err = initRunner(ctx, c, "../test/data/runner.json", d)
+	_, _, err = initRunner(ctx, c, "../test/data/runner.json", d)
 	assert.Equal(t, nil, err)
 }
 
@@ -83,12 +83,12 @@ func TestInitPipeline(t *testing.T) {
 	d, err := initDag(ctx, c)
 	assert.Equal(t, nil, err)
 
-	r, err := initRunner(ctx, c, "../test/data/runner.json", d)
+	_t, _, err := initRunner(ctx, c, "../test/data/runner.json", d)
 	assert.Equal(t, nil, err)
 
 	s, err := initScheduler(ctx, c, "../test/data/scheduler1.json")
 	assert.Equal(t, nil, err)
 
-	_, err = initPipeline(ctx, c, r, s)
+	_, err = initPipeline(ctx, c, _t, s)
 	assert.Equal(t, nil, err)
 }

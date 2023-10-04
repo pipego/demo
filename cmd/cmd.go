@@ -39,7 +39,7 @@ func Run(ctx context.Context) error {
 		return errors.Wrap(err, "failed to init dag")
 	}
 
-	r, err := initRunner(ctx, cfg, *runnerFile, d)
+	t, g, err := initRunner(ctx, cfg, *runnerFile, d)
 	if err != nil {
 		return errors.Wrap(err, "failed to init runner")
 	}
@@ -49,13 +49,17 @@ func Run(ctx context.Context) error {
 		return errors.Wrap(err, "failed to init scheduler")
 	}
 
-	p, err := initPipeline(ctx, cfg, r, s)
+	p, err := initPipeline(ctx, cfg, t, s)
 	if err != nil {
 		return errors.Wrap(err, "failed to init pipeline")
 	}
 
-	if err := runPipeline(ctx, r, p); err != nil {
+	if err := runPipeline(ctx, t, p); err != nil {
 		return errors.Wrap(err, "failed to run pipeline")
+	}
+
+	if err := runGlance(ctx, g); err != nil {
+		return errors.Wrap(err, "failed to run glance")
 	}
 
 	return nil
@@ -111,25 +115,51 @@ func initDag(ctx context.Context, cfg *config.Config) (dag.DAG, error) {
 	return dag.New(ctx, c), nil
 }
 
-func initRunner(ctx context.Context, cfg *config.Config, name string, d dag.DAG) (runner.Tasker, error) {
-	c := runner.TaskerDefaultConfig()
-	if c == nil {
-		return nil, errors.New("failed to config")
+func initRunner(ctx context.Context, cfg *config.Config, name string, d dag.DAG) (runner.Tasker, runner.Glancer, error) {
+	tasker := func() (*runner.TaskerConfig, error) {
+		t := runner.TaskerDefaultConfig()
+		if t == nil {
+			return nil, errors.New("failed to config")
+		}
+		t.Config = *cfg
+		t.Dag = d
+		buf, err := loadFile(name)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to load")
+		}
+		if err := json.Unmarshal(buf, &t.Data); err != nil {
+			return nil, errors.Wrap(err, "failed to unmarshal")
+		}
+		return t, nil
 	}
 
-	c.Config = *cfg
-	c.Dag = d
+	glancer := func() (*runner.GlancerConfig, error) {
+		g := runner.GlancerDefaultConfig()
+		if g == nil {
+			return nil, errors.New("failed to config")
+		}
+		g.Config = *cfg
+		buf, err := loadFile(name)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to load")
+		}
+		if err := json.Unmarshal(buf, &g.Data); err != nil {
+			return nil, errors.Wrap(err, "failed to unmarshal")
+		}
+		return g, nil
+	}
 
-	buf, err := loadFile(name)
+	t, err := tasker()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load")
+		return nil, nil, errors.Wrap(err, "failed to init tasker")
 	}
 
-	if err := json.Unmarshal(buf, &c.Data); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal")
+	g, err := glancer()
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to init glancer")
 	}
 
-	return runner.TaskerNew(ctx, c), nil
+	return runner.TaskerNew(ctx, t), runner.GlancerNew(ctx, g), nil
 }
 
 func initScheduler(ctx context.Context, cfg *config.Config, name string) (scheduler.Scheduler, error) {
@@ -176,12 +206,12 @@ func runPipeline(ctx context.Context, tasker runner.Tasker, pipe pipeline.Pipeli
 		return errors.Wrap(err, "failed to run")
 	}
 
-	fmt.Println("   Run: scheduler")
-	fmt.Println("  Name:", s.Name)
-	fmt.Println(" Error:", s.Error)
+	fmt.Println("    Run: scheduler")
+	fmt.Println("   Name:", s.Name)
+	fmt.Println("  Error:", s.Error)
 
 	fmt.Println()
-	fmt.Println("   Run: runner")
+	fmt.Println("    Run: runner.tasker")
 
 	done := make(chan bool, 1)
 	go printer(ctx, tasker, l, done)
@@ -217,4 +247,27 @@ func printer(ctx context.Context, tasker runner.Tasker, log livelog.Livelog, don
 	}
 
 	done <- true
+}
+
+func runGlance(ctx context.Context, glancer runner.Glancer) error {
+	if err := glancer.Init(ctx); err != nil {
+		return errors.Wrap(err, "failed to init")
+	}
+
+	out, err := glancer.Run(ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to run")
+	}
+
+	buf, err := json.MarshalIndent(out, "", "  ")
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal")
+	}
+
+	fmt.Println("    Run: runner.glancer")
+	fmt.Println(" Output:", string(buf))
+
+	_ = glancer.Deinit(ctx)
+
+	return nil
 }
