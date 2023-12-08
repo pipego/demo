@@ -21,7 +21,7 @@ type Task struct {
 	File     TaskFile    `json:"file"`
 	Params   []TaskParam `json:"params"`
 	Commands []string    `json:"commands"`
-	Livelog  int64       `json:"livelog"`
+	Livelog  TaskLivelog `json:"livelog"`
 	Timeout  TaskTimeout `json:"timeout"`
 	Depends  []string    `json:"depends"`
 }
@@ -34,6 +34,11 @@ type TaskFile struct {
 type TaskParam struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+type TaskLivelog struct {
+	Count int64 `json:"lineCount"`
+	Width int64 `json:"lineWidth"`
 }
 
 type TaskTimeout struct {

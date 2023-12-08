@@ -19,9 +19,10 @@ import (
 )
 
 const (
-	Livelog = 5000
-	Time    = 12
-	Unit    = "hour"
+	lineCount = 5000
+	lineWidth = 500
+	Time      = 12
+	Unit      = "hour"
 )
 
 type Tasker interface {
@@ -137,14 +138,14 @@ func (t *tasker) initDag(ctx context.Context) error {
 			File:     dagRunner.File(t.cfg.Data.Spec.Tasks[i].File),
 			Params:   helper(t.cfg.Data.Spec.Tasks[i].Params),
 			Commands: t.cfg.Data.Spec.Tasks[i].Commands,
-			Livelog:  t.cfg.Data.Spec.Tasks[i].Livelog,
+			Count:    t.cfg.Data.Spec.Tasks[i].Livelog.Count,
+			Width:    t.cfg.Data.Spec.Tasks[i].Livelog.Width,
 			Depends:  t.cfg.Data.Spec.Tasks[i].Depends,
 		})
 	}
 
 	t.log = dagRunner.Livelog{
-		Error: make(chan error, Livelog),
-		Line:  make(chan *dagRunner.Line, Livelog),
+		Line: make(chan *dagRunner.Line, lineCount),
 	}
 
 	return t.cfg.Dag.Init(ctx, tasks)
@@ -153,7 +154,6 @@ func (t *tasker) initDag(ctx context.Context) error {
 func (t *tasker) deinitDag(ctx context.Context) error {
 	_ = t.cfg.Dag.Deinit(ctx)
 
-	close(t.log.Error)
 	close(t.log.Line)
 
 	return nil
@@ -163,7 +163,8 @@ func (t *tasker) runDag(ctx context.Context) error {
 	return t.cfg.Dag.Run(ctx, t.routine, t.log)
 }
 
-func (t *tasker) routine(name string, file dagRunner.File, envs []dagRunner.Param, args []string, _len int64, log dagRunner.Livelog) error {
+func (t *tasker) routine(name string, file dagRunner.File, envs []dagRunner.Param, args []string, count, width int64,
+	log dagRunner.Livelog) error {
 	params := func(p []dagRunner.Param) []*proto.TaskParam {
 		var buf []*proto.TaskParam
 		for _, item := range p {
@@ -184,7 +185,10 @@ func (t *tasker) routine(name string, file dagRunner.File, envs []dagRunner.Para
 			},
 			Params:   params(envs),
 			Commands: args,
-			Livelog:  _len,
+			Livelog: &proto.Livelog{
+				LineCount: count,
+				LineWidth: width,
+			},
 		}
 	}()
 

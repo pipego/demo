@@ -10,7 +10,7 @@ import (
 type DAG interface {
 	Init(context.Context, []Task) error
 	Deinit(context.Context) error
-	Run(context.Context, func(string, runner.File, []runner.Param, []string, int64, runner.Livelog) error, runner.Livelog) error
+	Run(context.Context, func(string, runner.File, []runner.Param, []string, int64, int64, runner.Livelog) error, runner.Livelog) error
 }
 
 type Config struct {
@@ -35,20 +35,21 @@ func DefaultConfig() *Config {
 }
 
 func (d *dag) Init(_ context.Context, tasks []Task) error {
-	for _, task := range tasks {
+	for index := range tasks {
 		v := Vertex{
-			Name:     task.Name,
-			File:     task.File,
-			Params:   task.Params,
-			Commands: task.Commands,
-			Livelog:  task.Livelog,
+			Name:     tasks[index].Name,
+			File:     tasks[index].File,
+			Params:   tasks[index].Params,
+			Commands: tasks[index].Commands,
+			Count:    tasks[index].Count,
+			Width:    tasks[index].Width,
 		}
 		d.vertex = append(d.vertex, v)
 
-		for _, dep := range task.Depends {
+		for _, dep := range tasks[index].Depends {
 			e := Edge{
 				From: dep,
-				To:   task.Name,
+				To:   tasks[index].Name,
 			}
 			d.edge = append(d.edge, e)
 		}
@@ -61,10 +62,10 @@ func (d *dag) Deinit(_ context.Context) error {
 	return nil
 }
 
-func (d *dag) Run(_ context.Context, routine func(string, runner.File, []runner.Param, []string, int64, runner.Livelog) error,
+func (d *dag) Run(_ context.Context, routine func(string, runner.File, []runner.Param, []string, int64, int64, runner.Livelog) error,
 	log runner.Livelog) error {
 	for _, vertex := range d.vertex {
-		d.runner.AddVertex(vertex.Name, routine, vertex.File, vertex.Params, vertex.Commands, vertex.Livelog)
+		d.runner.AddVertex(vertex.Name, routine, vertex.File, vertex.Params, vertex.Commands, vertex.Count, vertex.Width)
 	}
 
 	for _, edge := range d.edge {
