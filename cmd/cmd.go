@@ -16,7 +16,7 @@ import (
 	"github.com/pipego/cli/pipeline"
 	"github.com/pipego/cli/runner"
 	"github.com/pipego/cli/scheduler"
-	livelog "github.com/pipego/dag/runner"
+	_runner "github.com/pipego/dag/runner"
 )
 
 var (
@@ -231,7 +231,7 @@ L:
 	return nil
 }
 
-func printer(ctx context.Context, tasker runner.Tasker, log livelog.Livelog, done chan<- bool) {
+func printer(ctx context.Context, tasker runner.Tasker, log _runner.Log, done chan<- bool) {
 	tasks := tasker.Tasks(ctx)
 
 	for range tasks {

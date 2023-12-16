@@ -9,7 +9,6 @@ type Task struct {
 	File     runner.File
 	Params   []runner.Param
 	Commands []string
-	Count    int64
 	Width    int64
 	Depends  []string
 }
@@ -24,7 +23,6 @@ type Vertex struct {
 	File     runner.File
 	Params   []runner.Param
 	Commands []string
-	Count    int64
 	Width    int64
 }
 

@@ -8,13 +8,13 @@ import (
 	"github.com/pipego/cli/config"
 	"github.com/pipego/cli/runner"
 	"github.com/pipego/cli/scheduler"
-	livelog "github.com/pipego/dag/runner"
+	_runner "github.com/pipego/dag/runner"
 )
 
 type Pipeline interface {
 	Init(context.Context) error
 	Deinit(context.Context) error
-	Run(context.Context) (scheduler.Result, livelog.Livelog, error)
+	Run(context.Context) (scheduler.Result, _runner.Log, error)
 }
 
 type Config struct {
@@ -56,15 +56,15 @@ func (p *pipeline) Deinit(ctx context.Context) error {
 	return nil
 }
 
-func (p *pipeline) Run(ctx context.Context) (s scheduler.Result, l livelog.Livelog, e error) {
+func (p *pipeline) Run(ctx context.Context) (s scheduler.Result, l _runner.Log, e error) {
 	var err error
 
 	if s, err = p.cfg.Scheduler.Run(ctx); err != nil {
-		return scheduler.Result{}, livelog.Livelog{}, errors.Wrap(err, "failed to issuerail scheduler")
+		return scheduler.Result{}, _runner.Log{}, errors.Wrap(err, "failed to issuerail scheduler")
 	}
 
 	if err = p.cfg.Tasker.Run(ctx); err != nil {
-		return scheduler.Result{}, livelog.Livelog{}, errors.Wrap(err, "failed to run runner")
+		return scheduler.Result{}, _runner.Log{}, errors.Wrap(err, "failed to run runner")
 	}
 
 	l = p.cfg.Tasker.Tail(ctx)

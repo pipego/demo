@@ -22,9 +22,8 @@
           "echo",
           "$env1"
         ],
-        "livelog": {
-          "lineCount": 5000,
-          "lineWidth": 500
+        "log": {
+          "width": 500
         },
         "timeout": {
           "time": 10,
@@ -48,9 +47,8 @@
           "echo",
           "$env2"
         ],
-        "livelog": {
-          "lineCount": 5000,
-          "lineWidth": 500
+        "log": {
+          "width": 500
         },
         "timeout": {
           "time": 10,
@@ -74,9 +72,8 @@
           "echo",
           "$env3"
         ],
-        "livelog": {
-          "lineCount": 5000,
-          "lineWidth": 500
+        "log": {
+          "width": 500
         },
         "timeout": {
           "time": 10,
@@ -94,9 +91,8 @@
           "gzip": true
         },
         "commands": [],
-        "livelog": {
-          "lineCount": 5000,
-          "lineWidth": 500
+        "log": {
+          "width": 500
         },
         "timeout": {
           "time": 10,

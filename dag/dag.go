@@ -10,7 +10,7 @@ import (
 type DAG interface {
 	Init(context.Context, []Task) error
 	Deinit(context.Context) error
-	Run(context.Context, func(string, runner.File, []runner.Param, []string, int64, int64, runner.Livelog) error, runner.Livelog) error
+	Run(context.Context, func(string, runner.File, []runner.Param, []string, int64, runner.Log) error, runner.Log) error
 }
 
 type Config struct {
@@ -41,7 +41,6 @@ func (d *dag) Init(_ context.Context, tasks []Task) error {
 			File:     tasks[index].File,
 			Params:   tasks[index].Params,
 			Commands: tasks[index].Commands,
-			Count:    tasks[index].Count,
 			Width:    tasks[index].Width,
 		}
 		d.vertex = append(d.vertex, v)
@@ -62,10 +61,10 @@ func (d *dag) Deinit(_ context.Context) error {
 	return nil
 }
 
-func (d *dag) Run(_ context.Context, routine func(string, runner.File, []runner.Param, []string, int64, int64, runner.Livelog) error,
-	log runner.Livelog) error {
+func (d *dag) Run(_ context.Context, routine func(string, runner.File, []runner.Param, []string, int64, runner.Log) error,
+	log runner.Log) error {
 	for _, vertex := range d.vertex {
-		d.runner.AddVertex(vertex.Name, routine, vertex.File, vertex.Params, vertex.Commands, vertex.Count, vertex.Width)
+		d.runner.AddVertex(vertex.Name, routine, vertex.File, vertex.Params, vertex.Commands, vertex.Width)
 	}
 
 	for _, edge := range d.edge {
