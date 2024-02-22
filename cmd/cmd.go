@@ -7,8 +7,8 @@ import (
 	"io"
 	"os"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/pkg/errors"
-	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/yaml.v3"
 
 	"github.com/pipego/cli/config"
