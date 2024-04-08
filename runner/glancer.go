@@ -81,6 +81,21 @@ func (g *glancer) Run(ctx context.Context) (rep GlanceReply, err error) {
 		return buf
 	}
 
+	processes := func(proc []*proto.GlanceProcess) []GlanceProcess {
+		var buf []GlanceProcess
+		for _, item := range proc {
+			buf = append(buf, GlanceProcess{
+				Name:    item.Name,
+				Cmdline: item.Cmdline,
+				Memory:  item.Memory,
+				Percent: item.Percent,
+				Pid:     item.Pid,
+				Ppid:    item.Ppid,
+			})
+		}
+		return buf
+	}
+
 	output := func(r *proto.GlanceReply) GlanceReply {
 		return GlanceReply{
 			Dir: GlanceDirRep{
@@ -118,6 +133,7 @@ func (g *glancer) Run(ctx context.Context) (rep GlanceReply, err error) {
 						Total: r.GetSys().GetStats().GetStorage().GetTotal(),
 						Used:  r.GetSys().GetStats().GetStorage().GetUsed(),
 					},
+					Processes: processes(r.GetSys().GetStats().GetProcesses()),
 				},
 			},
 			Error: r.GetError(),

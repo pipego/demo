@@ -130,11 +130,12 @@ type GlanceRequested struct {
 }
 
 type GlanceStats struct {
-	CPU     GlanceCPU     `json:"cpu"`
-	Host    string        `json:"host"`
-	Memory  GlanceMemory  `json:"memory"`
-	OS      string        `json:"os"`
-	Storage GlanceStorage `json:"storage"`
+	CPU       GlanceCPU       `json:"cpu"`
+	Host      string          `json:"host"`
+	Memory    GlanceMemory    `json:"memory"`
+	OS        string          `json:"os"`
+	Storage   GlanceStorage   `json:"storage"`
+	Processes []GlanceProcess `json:"processes"`
 }
 
 type GlanceCPU struct {
@@ -150,4 +151,13 @@ type GlanceMemory struct {
 type GlanceStorage struct {
 	Total string `json:"total"`
 	Used  string `json:"used"`
+}
+
+type GlanceProcess struct {
+	Name    string  `json:"name"`
+	Cmdline string  `json:"cmdline"`
+	Memory  int64   `json:"memory"`
+	Percent float64 `json:"percent"`
+	Pid     int64   `json:"pid"`
+	Ppid    int64   `json:"ppid"`
 }
