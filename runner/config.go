@@ -154,10 +154,14 @@ type GlanceStorage struct {
 }
 
 type GlanceProcess struct {
+	Process GlanceThread   `json:"process"`
+	Threads []GlanceThread `json:"threads"`
+}
+
+type GlanceThread struct {
 	Name    string  `json:"name"`
 	Cmdline string  `json:"cmdline"`
 	Memory  int64   `json:"memory"`
-	Percent float64 `json:"percent"`
+	Time    float64 `json:"time"`
 	Pid     int64   `json:"pid"`
-	Ppid    int64   `json:"ppid"`
 }

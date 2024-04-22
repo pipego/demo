@@ -69,13 +69,27 @@ func (g *glancer) Run(ctx context.Context) (rep GlanceReply, err error) {
 		var buf []GlanceEntry
 		for _, item := range ent {
 			buf = append(buf, GlanceEntry{
-				Name:  item.Name,
-				IsDir: item.IsDir,
-				Size:  item.Size,
-				Time:  item.Time,
-				User:  item.User,
-				Group: item.Group,
-				Mode:  item.Mode,
+				Name:  item.GetName(),
+				IsDir: item.GetIsDir(),
+				Size:  item.GetSize(),
+				Time:  item.GetTime(),
+				User:  item.GetUser(),
+				Group: item.GetGroup(),
+				Mode:  item.GetMode(),
+			})
+		}
+		return buf
+	}
+
+	threads := func(threads []*proto.GlanceThread) []GlanceThread {
+		var buf []GlanceThread
+		for _, item := range threads {
+			buf = append(buf, GlanceThread{
+				Name:    item.GetName(),
+				Cmdline: item.GetCmdline(),
+				Memory:  item.GetMemory(),
+				Time:    item.GetTime(),
+				Pid:     item.GetPid(),
 			})
 		}
 		return buf
@@ -85,12 +99,14 @@ func (g *glancer) Run(ctx context.Context) (rep GlanceReply, err error) {
 		var buf []GlanceProcess
 		for _, item := range proc {
 			buf = append(buf, GlanceProcess{
-				Name:    item.Name,
-				Cmdline: item.Cmdline,
-				Memory:  item.Memory,
-				Percent: item.Percent,
-				Pid:     item.Pid,
-				Ppid:    item.Ppid,
+				Process: GlanceThread{
+					Name:    item.GetProcess().GetName(),
+					Cmdline: item.GetProcess().GetCmdline(),
+					Memory:  item.GetProcess().GetMemory(),
+					Time:    item.GetProcess().GetTime(),
+					Pid:     item.GetProcess().GetPid(),
+				},
+				Threads: threads(item.GetThreads()),
 			})
 		}
 		return buf
