@@ -31,14 +31,6 @@ type glancer struct {
 	conn   *grpc.ClientConn
 }
 
-var (
-	GlancerUnitMap = map[string]time.Duration{
-		"second": time.Second,
-		"minute": time.Minute,
-		"hour":   time.Hour,
-	}
-)
-
 func GlancerNew(_ context.Context, cfg *GlancerConfig) Glancer {
 	return &glancer{
 		cfg: cfg,
@@ -223,19 +215,8 @@ func (g *glancer) deinitConn(_ context.Context) error {
 	return g.conn.Close()
 }
 
-func (g *glancer) setTimeout(timeout GlanceTimeout) time.Duration {
-	tm := int64(Time)
-	unit := int64(GlancerUnitMap[Unit])
+func (g *glancer) setTimeout(timeout string) time.Duration {
+	duration, _ := time.ParseDuration(timeout)
 
-	if timeout.Time != 0 {
-		tm = timeout.Time
-	}
-
-	if timeout.Unit != "" {
-		if val, ok := GlancerUnitMap[timeout.Unit]; ok {
-			unit = int64(val)
-		}
-	}
-
-	return time.Duration(tm * unit)
+	return duration
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"math"
 	"strconv"
+	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -70,6 +71,9 @@ func (m *mainter) Run(ctx context.Context) (rep MaintReply, err error) {
 		}
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, m.setTimeout(m.cfg.Data.Spec.Maint.Timeout))
+	defer cancel()
+
 	reply, e := m.client.SendMaint(ctx)
 	defer func() {
 		_ = reply.CloseSend()
@@ -126,4 +130,10 @@ func (m *mainter) initConn(_ context.Context) error {
 
 func (m *mainter) deinitConn(_ context.Context) error {
 	return m.conn.Close()
+}
+
+func (m *mainter) setTimeout(timeout string) time.Duration {
+	duration, _ := time.ParseDuration(timeout)
+
+	return duration
 }

@@ -45,14 +45,6 @@ type tasker struct {
 	log    _runner.Log
 }
 
-var (
-	TaskerUnitMap = map[string]time.Duration{
-		"second": time.Second,
-		"minute": time.Minute,
-		"hour":   time.Hour,
-	}
-)
-
 func TaskerNew(_ context.Context, cfg *TaskerConfig) Tasker {
 	return &tasker{
 		cfg: cfg,
@@ -268,20 +260,6 @@ func (t *tasker) contentHelper(data []byte, compressed bool) []byte {
 }
 
 func (t *tasker) setTimeout(name string) time.Duration {
-	helper := func(_t Task) time.Duration {
-		tm := int64(Time)
-		unit := int64(TaskerUnitMap[Unit])
-		if _t.Timeout.Time != 0 {
-			tm = _t.Timeout.Time
-		}
-		if _t.Timeout.Unit != "" {
-			if val, ok := TaskerUnitMap[_t.Timeout.Unit]; ok {
-				unit = int64(val)
-			}
-		}
-		return time.Duration(tm * unit)
-	}
-
 	var _t Task
 
 	for i := range t.cfg.Data.Spec.Tasks {
@@ -291,5 +269,7 @@ func (t *tasker) setTimeout(name string) time.Duration {
 		}
 	}
 
-	return helper(_t)
+	duration, _ := time.ParseDuration(_t.Timeout)
+
+	return duration
 }

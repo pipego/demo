@@ -23,7 +23,7 @@ type Task struct {
 	Params   []TaskParam `json:"params"`
 	Commands []string    `json:"commands"`
 	Log      TaskLog     `json:"log"`
-	Timeout  TaskTimeout `json:"timeout"`
+	Timeout  string      `json:"timeout"`
 	Depends  []string    `json:"depends"`
 }
 
@@ -41,11 +41,6 @@ type TaskLog struct {
 	Width int64 `json:"width"`
 }
 
-type TaskTimeout struct {
-	Time int64  `json:"time"`
-	Unit string `json:"unit"`
-}
-
 type TaskResult struct {
 	Output TaskOutput `json:"output"`
 	Error  string     `json:"error"`
@@ -61,7 +56,7 @@ type Glance struct {
 	Dir     GlanceDirReq  `json:"dir"`
 	File    GlanceFileReq `json:"file"`
 	Sys     GlanceSysReq  `json:"sys"`
-	Timeout GlanceTimeout `json:"timeout"`
+	Timeout string        `json:"timeout"`
 }
 
 type GlanceDirReq struct {
@@ -75,11 +70,6 @@ type GlanceFileReq struct {
 
 type GlanceSysReq struct {
 	Enable bool `json:"enable"`
-}
-
-type GlanceTimeout struct {
-	Time int64  `json:"time"`
-	Unit string `json:"unit"`
 }
 
 type GlanceReply struct {
@@ -168,7 +158,8 @@ type GlanceThread struct {
 }
 
 type Maint struct {
-	Clock MaintClockReq `json:"clock"`
+	Clock   MaintClockReq `json:"clock"`
+	Timeout string        `json:"timeout"`
 }
 
 type MaintClockReq struct {

@@ -25,10 +25,7 @@
         "log": {
           "width": 500
         },
-        "timeout": {
-          "time": 10,
-          "unit": "second"
-        },
+        "timeout": "10s",
         "depends": []
       },
       {
@@ -50,10 +47,7 @@
         "log": {
           "width": 500
         },
-        "timeout": {
-          "time": 10,
-          "unit": "second"
-        },
+        "timeout": "10s",
         "depends": []
       },
       {
@@ -75,10 +69,7 @@
         "log": {
           "width": 500
         },
-        "timeout": {
-          "time": 10,
-          "unit": "second"
-        },
+        "timeout": "10s",
         "depends": [
           "task1",
           "task2"
@@ -94,10 +85,7 @@
         "log": {
           "width": 500
         },
-        "timeout": {
-          "time": 10,
-          "unit": "second"
-        },
+        "timeout": "10s",
         "depends": [
           "task3"
         ]
@@ -114,16 +102,14 @@
       "sys": {
         "enable": true
       },
-      "timeout": {
-        "time": 10,
-        "unit": "second"
-      }
+      "timeout": "10s"
     },
     "maint": {
       "clock": {
         "sync": true,
         "time": 1257894000
-      }
+      },
+      "timeout": "10s"
     }
   }
 }
