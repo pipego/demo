@@ -45,6 +45,7 @@ func TestInitDag(t *testing.T) {
 	assert.Equal(t, nil, err)
 }
 
+// nolint:dogsled
 func TestInitRunner(t *testing.T) {
 	ctx := context.Background()
 
@@ -54,10 +55,10 @@ func TestInitRunner(t *testing.T) {
 	d, err := initDag(ctx, c)
 	assert.Equal(t, nil, err)
 
-	_, _, err = initRunner(ctx, c, "invalid.json", d)
+	_, _, _, err = initRunner(ctx, c, "invalid.json", d)
 	assert.NotEqual(t, nil, err)
 
-	_, _, err = initRunner(ctx, c, "../test/data/runner.json", d)
+	_, _, _, err = initRunner(ctx, c, "../test/data/runner.json", d)
 	assert.Equal(t, nil, err)
 }
 
@@ -83,7 +84,7 @@ func TestInitPipeline(t *testing.T) {
 	d, err := initDag(ctx, c)
 	assert.Equal(t, nil, err)
 
-	_t, _, err := initRunner(ctx, c, "../test/data/runner.json", d)
+	_t, _, _, err := initRunner(ctx, c, "../test/data/runner.json", d)
 	assert.Equal(t, nil, err)
 
 	s, err := initScheduler(ctx, c, "../test/data/scheduler1.json")

@@ -118,6 +118,12 @@
         "time": 10,
         "unit": "second"
       }
+    },
+    "maint": {
+      "clock": {
+        "sync": true,
+        "time": 1257894000
+      }
     }
   }
 }

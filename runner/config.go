@@ -14,6 +14,7 @@ type Metadata struct {
 type Spec struct {
 	Tasks  []Task `json:"tasks"`
 	Glance Glance `json:"glance"`
+	Maint  Maint  `json:"maint"`
 }
 
 type Task struct {
@@ -164,4 +165,32 @@ type GlanceThread struct {
 	Memory  int64   `json:"memory"`
 	Time    float64 `json:"time"`
 	Pid     int64   `json:"pid"`
+}
+
+type Maint struct {
+	Clock MaintClockReq `json:"clock"`
+}
+
+type MaintClockReq struct {
+	Sync bool  `json:"sync"`
+	Time int64 `json:"time"`
+}
+
+type MaintReply struct {
+	Clock MaintClockRep `json:"clock"`
+	Error string        `json:"error"`
+}
+
+type MaintClockRep struct {
+	Sync MaintClockSync `json:"sync"`
+	Diff MaintClockDiff `json:"diff"`
+}
+
+type MaintClockSync struct {
+	Status int64 `json:"status"`
+}
+
+type MaintClockDiff struct {
+	Time      int64 `json:"time"`
+	Dangerous bool  `json:"dangerous"`
 }
