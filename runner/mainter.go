@@ -67,7 +67,6 @@ func (m *mainter) Run(ctx context.Context) (rep MaintReply, err error) {
 					Dangerous: r.GetClock().GetDiff().GetDangerous(),
 				},
 			},
-			Error: r.GetError(),
 		}
 	}
 

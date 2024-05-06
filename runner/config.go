@@ -169,7 +169,6 @@ type MaintClockReq struct {
 
 type MaintReply struct {
 	Clock MaintClockRep `json:"clock"`
-	Error string        `json:"error"`
 }
 
 type MaintClockRep struct {
@@ -178,7 +177,7 @@ type MaintClockRep struct {
 }
 
 type MaintClockSync struct {
-	Status int64 `json:"status"`
+	Status string `json:"status"`
 }
 
 type MaintClockDiff struct {
