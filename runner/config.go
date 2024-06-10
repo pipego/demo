@@ -18,13 +18,14 @@ type Spec struct {
 }
 
 type Task struct {
-	Name     string      `json:"name"`
-	File     TaskFile    `json:"file"`
-	Params   []TaskParam `json:"params"`
-	Commands []string    `json:"commands"`
-	Log      TaskLog     `json:"log"`
-	Timeout  string      `json:"timeout"`
-	Depends  []string    `json:"depends"`
+	Name     string       `json:"name"`
+	File     TaskFile     `json:"file"`
+	Params   []TaskParam  `json:"params"`
+	Commands []string     `json:"commands"`
+	Log      TaskLog      `json:"log"`
+	Language TaskLanguage `json:"language"`
+	Timeout  string       `json:"timeout"`
+	Depends  []string     `json:"depends"`
 }
 
 type TaskFile struct {
@@ -39,6 +40,11 @@ type TaskParam struct {
 
 type TaskLog struct {
 	Width int64 `json:"width"`
+}
+
+type TaskLanguage struct {
+	Name  string `json:"name"`
+	Image string `json:"image"`
 }
 
 type TaskResult struct {

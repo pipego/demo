@@ -110,7 +110,7 @@ func (t *tasker) deinitConn(_ context.Context) error {
 }
 
 func (t *tasker) initDag(ctx context.Context) error {
-	helper := func(p []TaskParam) []_runner.Param {
+	params := func(p []TaskParam) []_runner.Param {
 		var buf []_runner.Param
 		for _, item := range p {
 			buf = append(buf, _runner.Param{
@@ -121,15 +121,23 @@ func (t *tasker) initDag(ctx context.Context) error {
 		return buf
 	}
 
+	language := func(l TaskLanguage) _runner.Language {
+		return _runner.Language{
+			Name:  l.Name,
+			Image: l.Image,
+		}
+	}
+
 	var tasks []dag.Task
 
 	for i := range t.cfg.Data.Spec.Tasks {
 		tasks = append(tasks, dag.Task{
 			Name:     t.cfg.Data.Spec.Tasks[i].Name,
 			File:     _runner.File(t.cfg.Data.Spec.Tasks[i].File),
-			Params:   helper(t.cfg.Data.Spec.Tasks[i].Params),
+			Params:   params(t.cfg.Data.Spec.Tasks[i].Params),
 			Commands: t.cfg.Data.Spec.Tasks[i].Commands,
 			Width:    t.cfg.Data.Spec.Tasks[i].Log.Width,
+			Language: language(t.cfg.Data.Spec.Tasks[i].Language),
 			Depends:  t.cfg.Data.Spec.Tasks[i].Depends,
 		})
 	}
@@ -154,7 +162,7 @@ func (t *tasker) runDag(ctx context.Context) error {
 }
 
 func (t *tasker) routine(name string, file _runner.File, envs []_runner.Param, args []string, width int64,
-	log _runner.Log) error {
+	lang _runner.Language, log _runner.Log) error {
 	params := func(p []_runner.Param) []*proto.TaskParam {
 		var buf []*proto.TaskParam
 		for _, item := range p {
@@ -164,6 +172,13 @@ func (t *tasker) routine(name string, file _runner.File, envs []_runner.Param, a
 			})
 		}
 		return buf
+	}
+
+	language := func(l _runner.Language) *proto.TaskLanguage {
+		return &proto.TaskLanguage{
+			Name:  l.Name,
+			Image: l.Image,
+		}
 	}
 
 	task := func() *proto.Task {
@@ -178,6 +193,7 @@ func (t *tasker) routine(name string, file _runner.File, envs []_runner.Param, a
 			Log: &proto.TaskLog{
 				Width: width,
 			},
+			Language: language(lang),
 		}
 	}()
 

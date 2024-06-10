@@ -10,6 +10,7 @@ type Task struct {
 	Params   []runner.Param
 	Commands []string
 	Width    int64
+	Language runner.Language
 	Depends  []string
 }
 
@@ -24,6 +25,7 @@ type Vertex struct {
 	Params   []runner.Param
 	Commands []string
 	Width    int64
+	Language runner.Language
 }
 
 type Edge struct {

@@ -10,7 +10,7 @@ import (
 type DAG interface {
 	Init(context.Context, []Task) error
 	Deinit(context.Context) error
-	Run(context.Context, func(string, runner.File, []runner.Param, []string, int64, runner.Log) error, runner.Log) error
+	Run(context.Context, func(string, runner.File, []runner.Param, []string, int64, runner.Language, runner.Log) error, runner.Log) error
 }
 
 type Config struct {
@@ -42,6 +42,7 @@ func (d *dag) Init(_ context.Context, tasks []Task) error {
 			Params:   tasks[index].Params,
 			Commands: tasks[index].Commands,
 			Width:    tasks[index].Width,
+			Language: tasks[index].Language,
 		}
 		d.vertex = append(d.vertex, v)
 
@@ -61,10 +62,11 @@ func (d *dag) Deinit(_ context.Context) error {
 	return nil
 }
 
-func (d *dag) Run(_ context.Context, routine func(string, runner.File, []runner.Param, []string, int64, runner.Log) error,
+func (d *dag) Run(_ context.Context, routine func(string, runner.File, []runner.Param, []string, int64, runner.Language, runner.Log) error,
 	log runner.Log) error {
-	for _, vertex := range d.vertex {
-		d.runner.AddVertex(vertex.Name, routine, vertex.File, vertex.Params, vertex.Commands, vertex.Width)
+	for i := range d.vertex {
+		d.runner.AddVertex(d.vertex[i].Name, routine, d.vertex[i].File, d.vertex[i].Params, d.vertex[i].Commands,
+			d.vertex[i].Width, d.vertex[i].Language)
 	}
 
 	for _, edge := range d.edge {
