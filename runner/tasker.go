@@ -123,8 +123,13 @@ func (t *tasker) initDag(ctx context.Context) error {
 
 	language := func(l TaskLanguage) _runner.Language {
 		return _runner.Language{
-			Name:  l.Name,
-			Image: l.Image,
+			Name: l.Name,
+			Artifact: _runner.Artifact{
+				Image:   l.Artifact.Image,
+				User:    l.Artifact.User,
+				Pass:    l.Artifact.Pass,
+				Cleanup: l.Artifact.Cleanup,
+			},
 		}
 	}
 
@@ -176,8 +181,13 @@ func (t *tasker) routine(name string, file _runner.File, envs []_runner.Param, a
 
 	language := func(l _runner.Language) *proto.TaskLanguage {
 		return &proto.TaskLanguage{
-			Name:  l.Name,
-			Image: l.Image,
+			Name: l.Name,
+			Artifact: &proto.TaskArtifact{
+				Image:   l.Artifact.Image,
+				User:    l.Artifact.User,
+				Pass:    l.Artifact.Pass,
+				Cleanup: l.Artifact.Cleanup,
+			},
 		}
 	}
 

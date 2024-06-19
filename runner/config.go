@@ -43,8 +43,15 @@ type TaskLog struct {
 }
 
 type TaskLanguage struct {
-	Name  string `json:"name"`
-	Image string `json:"image"`
+	Name     string       `json:"name"`
+	Artifact TaskArtifact `json:"artifact"`
+}
+
+type TaskArtifact struct {
+	Image   string `json:"image"`
+	User    string `json:"user"`
+	Pass    string `json:"pass"`
+	Cleanup bool   `json:"cleanup"`
 }
 
 type TaskResult struct {
