@@ -25,6 +25,15 @@
         "log": {
           "width": 500
         },
+        "language": {
+          "name": "bash",
+          "artifact": {
+            "image": "",
+            "user": "",
+            "pass": "",
+            "cleanup": false
+          }
+        },
         "timeout": "10s",
         "depends": []
       },
@@ -46,6 +55,15 @@
         ],
         "log": {
           "width": 500
+        },
+        "language": {
+          "name": "bash",
+          "artifact": {
+            "image": "",
+            "user": "",
+            "pass": "",
+            "cleanup": false
+          }
         },
         "timeout": "10s",
         "depends": []
@@ -69,6 +87,15 @@
         "log": {
           "width": 500
         },
+        "language": {
+          "name": "bash",
+          "artifact": {
+            "image": "",
+            "user": "",
+            "pass": "",
+            "cleanup": false
+          }
+        },
         "timeout": "10s",
         "depends": [
           "task1",
@@ -84,6 +111,15 @@
         "commands": [],
         "log": {
           "width": 500
+        },
+        "language": {
+          "name": "bash",
+          "artifact": {
+            "image": "",
+            "user": "",
+            "pass": "",
+            "cleanup": false
+          }
         },
         "timeout": "10s",
         "depends": [
