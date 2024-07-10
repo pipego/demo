@@ -39,7 +39,7 @@ func Run(ctx context.Context) error {
 		return errors.Wrap(err, "failed to init dag")
 	}
 
-	t, g, m, err := initRunner(ctx, cfg, *runnerFile, d)
+	t, g, m, c, err := initRunner(ctx, cfg, *runnerFile, d)
 	if err != nil {
 		return errors.Wrap(err, "failed to init runner")
 	}
@@ -64,6 +64,10 @@ func Run(ctx context.Context) error {
 
 	if err := runMaint(ctx, m); err != nil {
 		return errors.Wrap(err, "failed to run maint")
+	}
+
+	if err := runConfig(ctx, c); err != nil {
+		return errors.Wrap(err, "failed to run config")
 	}
 
 	return nil
@@ -119,7 +123,9 @@ func initDag(ctx context.Context, cfg *config.Config) (dag.DAG, error) {
 	return dag.New(ctx, c), nil
 }
 
-func initRunner(ctx context.Context, cfg *config.Config, name string, d dag.DAG) (runner.Tasker, runner.Glancer, runner.Mainter, error) {
+// nolint: funlen,gocyclo
+func initRunner(ctx context.Context, cfg *config.Config, name string, d dag.DAG) (runner.Tasker, runner.Glancer,
+	runner.Mainter, runner.Configer, error) {
 	tasker := func() (*runner.TaskerConfig, error) {
 		t := runner.TaskerDefaultConfig()
 		if t == nil {
@@ -169,22 +175,43 @@ func initRunner(ctx context.Context, cfg *config.Config, name string, d dag.DAG)
 		return m, nil
 	}
 
+	configer := func() (*runner.ConfigerConfig, error) {
+		m := runner.ConfigerDefaultConfig()
+		if m == nil {
+			return nil, errors.New("failed to config")
+		}
+		m.Config = *cfg
+		buf, err := loadFile(name)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to load")
+		}
+		if err := json.Unmarshal(buf, &m.Data); err != nil {
+			return nil, errors.Wrap(err, "failed to unmarshal")
+		}
+		return m, nil
+	}
+
 	t, err := tasker()
 	if err != nil {
-		return nil, nil, nil, errors.Wrap(err, "failed to init tasker")
+		return nil, nil, nil, nil, errors.Wrap(err, "failed to init tasker")
 	}
 
 	g, err := glancer()
 	if err != nil {
-		return nil, nil, nil, errors.Wrap(err, "failed to init glancer")
+		return nil, nil, nil, nil, errors.Wrap(err, "failed to init glancer")
 	}
 
 	m, err := mainter()
 	if err != nil {
-		return nil, nil, nil, errors.Wrap(err, "failed to init mainter")
+		return nil, nil, nil, nil, errors.Wrap(err, "failed to init mainter")
 	}
 
-	return runner.TaskerNew(ctx, t), runner.GlancerNew(ctx, g), runner.MainterNew(ctx, m), nil
+	c, err := configer()
+	if err != nil {
+		return nil, nil, nil, nil, errors.Wrap(err, "failed to init configer")
+	}
+
+	return runner.TaskerNew(ctx, t), runner.GlancerNew(ctx, g), runner.MainterNew(ctx, m), runner.ConfigerNew(ctx, c), nil
 }
 
 func initScheduler(ctx context.Context, cfg *config.Config, name string) (scheduler.Scheduler, error) {
@@ -316,6 +343,29 @@ func runMaint(ctx context.Context, mainter runner.Mainter) error {
 	fmt.Println(" Output:", string(buf))
 
 	_ = mainter.Deinit(ctx)
+
+	return nil
+}
+
+func runConfig(ctx context.Context, configer runner.Configer) error {
+	if err := configer.Init(ctx); err != nil {
+		return errors.Wrap(err, "failed to init")
+	}
+
+	out, err := configer.Run(ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to run")
+	}
+
+	buf, err := json.MarshalIndent(out, "", "  ")
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal")
+	}
+
+	fmt.Println("    Run: runner.configer")
+	fmt.Println(" Output:", string(buf))
+
+	_ = configer.Deinit(ctx)
 
 	return nil
 }

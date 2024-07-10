@@ -15,6 +15,7 @@ type Spec struct {
 	Tasks  []Task `json:"tasks"`
 	Glance Glance `json:"glance"`
 	Maint  Maint  `json:"maint"`
+	Config Config `json:"config"`
 }
 
 type Task struct {
@@ -196,4 +197,13 @@ type MaintClockSync struct {
 type MaintClockDiff struct {
 	Time      int64 `json:"time"`
 	Dangerous bool  `json:"dangerous"`
+}
+
+type Config struct {
+	Version bool   `json:"version"`
+	Timeout string `json:"timeout"`
+}
+
+type ConfigReply struct {
+	Version string `json:"version"`
 }

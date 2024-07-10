@@ -146,6 +146,10 @@
         "time": 1257894000
       },
       "timeout": "10s"
+    },
+    "config": {
+      "version": true,
+      "timeout": "10s"
     }
   }
 }
